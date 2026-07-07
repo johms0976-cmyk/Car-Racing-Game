@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#17141b">
+<title>HEAT — Pukekohe GP</title>
+<style>
+:root{
+  --tarmac:#17141b;
+  --cream:#f0e7d3;
+  --cream-dim:#b9ae95;
+  --purple:#8a5cf6;
+  --purple-glow:#a985ff;
+  --heat:#e3492b;
+  --disp:"Avenir Next Condensed","Arial Narrow","Helvetica Neue Condensed","Liberation Sans Narrow",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:var(--tarmac);
+  color:var(--cream);
+  font-family:var(--disp);
+  overflow:hidden;
+  height:100dvh;
+  user-select:none;-webkit-user-select:none;
+  cursor:pointer;
+}
+
+/* ---------- background ---------- */
+#stage{
+  position:fixed; inset:0;
+  background:#000 center/cover no-repeat;
+  background-image:url("screens/background.png");
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:flex-end;
+}
+/* legibility wash so the floating text reads on any background art */
+#stage::after{
+  content:"";
+  position:absolute; inset:0;
+  background:
+    radial-gradient(120% 80% at 50% 30%, transparent 40%, rgba(0,0,0,.55) 100%),
+    linear-gradient(180deg, rgba(0,0,0,.25) 0%, transparent 30%, transparent 55%, rgba(0,0,0,.72) 100%);
+  pointer-events:none;
+}
+
+/* ---------- floating start prompt ---------- */
+#prompt{
+  position:relative; z-index:2;
+  text-align:center;
+  margin-bottom:14vh;
+  animation:float 3.4s ease-in-out infinite;
+}
+#prompt .eyebrow{
+  font-size:clamp(11px,2.4vw,15px);
+  letter-spacing:6px; text-transform:uppercase;
+  color:var(--cream-dim);
+  margin-bottom:10px;
+}
+#start{
+  display:inline-block;
+  font-size:clamp(38px,10vw,86px);
+  font-weight:800; line-height:.92;
+  letter-spacing:3px; text-transform:uppercase;
+  color:var(--cream);
+  text-shadow:0 0 22px rgba(138,92,246,.65), 0 4px 18px rgba(0,0,0,.7);
+  animation:pulse 2.1s ease-in-out infinite;
+}
+#start .metal{
+  color:var(--heat);
+  text-shadow:0 0 26px rgba(227,73,43,.7), 0 4px 18px rgba(0,0,0,.7);
+}
+#hint{
+  position:relative; z-index:2;
+  font-size:clamp(10px,2.2vw,13px);
+  letter-spacing:3px; text-transform:uppercase;
+  color:var(--cream-dim);
+  margin-bottom:6vh;
+  opacity:.85;
+}
+
+/* ---------- sound toggle (only shows if autoplay was blocked) ---------- */
+#soundNote{
+  position:fixed; z-index:3; top:14px; right:14px;
+  font-size:11px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--cream); background:rgba(75,47,168,.55);
+  border:1px solid var(--purple);
+  border-radius:999px; padding:7px 14px;
+  display:none; align-items:center; gap:7px;
+  box-shadow:0 0 14px rgba(138,92,246,.4);
+}
+#soundNote.show{display:flex}
+
+/* ---------- fade-to-black transition ---------- */
+#fade{
+  position:fixed; inset:0; z-index:10;
+  background:#000; opacity:0; pointer-events:none;
+  transition:opacity .9s ease;
+}
+#fade.on{opacity:1}
+
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-9px)}
+}
+@keyframes pulse{
+  0%,100%{opacity:1; text-shadow:0 0 22px rgba(138,92,246,.65),0 4px 18px rgba(0,0,0,.7)}
+  50%{opacity:.72; text-shadow:0 0 8px rgba(138,92,246,.3),0 4px 18px rgba(0,0,0,.7)}
+}
+
+@media (prefers-reduced-motion: reduce){
+  #prompt,#start{animation:none}
+}
+</style>
+</head>
+<body>
+
+<div id="stage" role="button" tabindex="0" aria-label="Start game">
+  <div id="prompt">
+    <div class="eyebrow">New Zealand International Grand Prix · Pukekohe</div>
+    <div id="start">Start <span class="metal">Game</span></div>
+  </div>
+  <div id="hint">Tap anywhere to race</div>
+</div>
+
+<div id="soundNote">🔊 Tap to enable sound</div>
+<div id="fade"></div>
+
+<!-- opening.mp3 loops as attract music; start.mp3 is the engine-start sting -->
+<audio id="opening" src="audio/opening.mp3" loop preload="auto"></audio>
+<audio id="startsfx" src="audio/effects/start.mp3" preload="auto"></audio>
+
+<script>
+/* ============================================================
+   CHANGE THIS to whatever your game file is named in the repo.
+   Filenames with spaces need URL-encoding (e.g. "index_13%203.html"),
+   so renaming the game file to game.html is the tidiest option.
+   ============================================================ */
+const GAME_URL = "game.html";
+
+const stage    = document.getElementById("stage");
+const opening  = document.getElementById("opening");
+const startsfx = document.getElementById("startsfx");
+const fade     = document.getElementById("fade");
+const soundNote= document.getElementById("soundNote");
+
+let launched = false;
+
+/* --- Try to play the attract music on load. Browsers block audio
+       autoplay until the user interacts, so if it's rejected we show
+       a small hint and unlock on the first tap. --- */
+opening.volume = 0.7;
+opening.play().catch(() => {
+  soundNote.classList.add("show");
+});
+
+/* First interaction unlocks the opening track (if it was blocked)
+   without launching the game — a light tap "wakes" the sound. */
+function unlockAudio(){
+  if(opening.paused){
+    opening.play().catch(()=>{});
+  }
+  soundNote.classList.remove("show");
+}
+
+function launch(){
+  if(launched) return;
+  launched = true;
+
+  // Fade the attract music down
+  const fadeOut = setInterval(() => {
+    opening.volume = Math.max(0, opening.volume - 0.12);
+    if(opening.volume <= 0){ opening.pause(); clearInterval(fadeOut); }
+  }, 60);
+
+  // Play the engine-start sound effect
+  startsfx.currentTime = 0;
+  startsfx.play().catch(()=>{});
+
+  // Fade the screen to black, then go to the game
+  fade.classList.add("on");
+  const go = () => { window.location.href = GAME_URL; };
+  startsfx.addEventListener("ended", go, {once:true});
+  setTimeout(go, 2600); // fallback if the sfx is short or "ended" never fires
+}
+
+/* One tap handles both: unlock sound (if needed) AND launch.
+   Because the tap is a genuine user gesture, start.mp3 is allowed. */
+function handleActivate(){
+  unlockAudio();
+  launch();
+}
+
+stage.addEventListener("pointerdown", handleActivate);
+stage.addEventListener("keydown", (e) => {
+  if(e.key === "Enter" || e.key === " "){ e.preventDefault(); handleActivate(); }
+});
+</script>
+</body>
+</html>
