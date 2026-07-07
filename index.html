@@ -274,9 +274,10 @@ const G = {
      upshiftBias  – tendency to sit in higher gears
      cornerMargin – braking caution approaching corners (1 = brakes earlier) */
 const SIM_PROFILES = [
-  { key:0, name:"Rookie", aggression:0.28, heatFloor:3, boostChance:0.15, riskTolerance:0, upshiftBias:0.20, cornerMargin:1 },
-  { key:1, name:"Pro",    aggression:0.58, heatFloor:2, boostChance:0.45, riskTolerance:1, upshiftBias:0.55, cornerMargin:0 },
-  { key:2, name:"Legend", aggression:0.88, heatFloor:2, boostChance:0.72, riskTolerance:2, upshiftBias:0.85, cornerMargin:0 }
+  { key:0, name:"Davidson", aggression:0.28, heatFloor:3, boostChance:0.15, riskTolerance:0, upshiftBias:0.20, cornerMargin:1 },
+  { key:1, name:"Rookie",    aggression:0.58, heatFloor:2, boostChance:0.45, riskTolerance:1, upshiftBias:0.55, cornerMargin:0 },
+  { key:2, name:"Pro", aggression:0.88, heatFloor:1, boostChance:0.72, riskTolerance:2, upshiftBias:0.85, cornerMargin:0 },
+  { key:3, name:"Legend", aggression:0.99, heatFloor:0, boostChance:1.00, riskTolerance:2, upshiftBias:1.00, cornerMargin:0 } 
 ];
 const simProfile = () => SIM_PROFILES[Math.max(0, Math.min(SIM_PROFILES.length-1, G.difficulty))];
 const botDelay   = () => 220;
@@ -561,7 +562,7 @@ function showSetup(){
       <div class="tag">New Zealand International Grand Prix — fan table, private garage build</div>
       <div class="optgroup"><div class="olbl">Rival cars (AI legends) — up to 7, for an 8-car grid</div>
         <div class="seg" id="segbots" style="gap:5px">
-          ${[1,2,3,4,5,6,7].map(v=>`<button data-v="${v}"${v===2?' class="sel"':''}>${v}</button>`).join("")}
+          ${[1,2,3,4,5,6,7].map(v=>`<button data-v="${v}"${v===7?' class="sel"':''}>${v}</button>`).join("")}
         </div></div>
       <div class="optgroup"><div class="olbl">Laps</div>
         <div class="seg" id="seglaps">
@@ -575,7 +576,7 @@ function showSetup(){
       </div>
       <div class="optgroup"><div class="olbl">Rival pace / skill</div>
         <div class="seg" id="segdiff">
-          <button data-v="0" class="sel">Rookie</button><button data-v="1">Pro</button><button data-v="2">Legend</button>
+          <button data-v="0" class="sel">Davidson</button><button data-v="1">Rookie</button><button data-v="2">Pro</button><button data-v="3">Legend</button>
         </div></div>
       <div class="optgroup"><div class="olbl">Weather &amp; road conditions (advanced module)</div>
         <select id="selweather" style="width:100%;padding:11px 10px;border-radius:8px;border:2px solid #4a3f63;background:#171221;color:var(--cream);font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.5px">
