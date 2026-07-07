@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#17141b">
+<title>REVUP - Race, React, Dominate</title>
+<style>
+:root{
+  --tarmac:#17141b; --panel:#221d2b; --panel2:#2c2536;
+  --cream:#f0e7d3; --cream-dim:#b9ae95;
+  --purple:#8a5cf6; --purple-deep:#4b2fa8; --purple-glow:#a985ff;
+  --heat:#e3492b; --heat-dim:#8a3520;
+  --cool:#3fa7d6; --grass:#3e5039;
+  --stress:#d8c23a;
+  --disp:"Avenir Next Condensed","Arial Narrow","Helvetica Neue Condensed","Liberation Sans Narrow",system-ui,sans-serif;
+  --mono:"SF Mono","Roboto Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:var(--tarmac); color:var(--cream);
+  font-family:var(--disp); overflow:hidden;
+  display:flex; flex-direction:column; height:100dvh;
+  user-select:none;-webkit-user-select:none;
+}
+/* ---------- header ---------- */
+#topbar{
+  display:flex; align-items:center; gap:10px; padding:8px 12px 6px;
+  border-bottom:1px solid #000;
+  background:linear-gradient(180deg,#241d31,#1a1622);
+}
+#topbar .badge{
+  background:var(--purple-deep); color:#fff; border:2px solid var(--purple);
+  border-radius:50%; width:34px;height:34px; display:flex;align-items:center;justify-content:center;
+  font-weight:800; font-size:15px; flex:none;
+  box-shadow:0 0 10px rgba(138,92,246,.5);
+}
+#topbar h1{font-size:17px; letter-spacing:2.5px; text-transform:uppercase; font-weight:800; line-height:1}
+#topbar .sub{font-size:10px; letter-spacing:2px; color:var(--cream-dim); text-transform:uppercase; margin-top:2px}
+#standings{margin-left:auto; display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end; max-width:46%}
+.pos-chip{
+  width:18px;height:18px;border-radius:50%; display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;color:#111; border:1px solid rgba(0,0,0,.5);
+}
+/* landing-spot highlight bands on the track */
+.landhl{pointer-events:none}
+.landhl.exact{opacity:.55}
+.landhl.range{opacity:.30}
+/* ---------- track ---------- */
+#trackwrap{position:relative; background:var(--grass); flex:none; touch-action:none}
+#tracksvg{display:block; width:100%; height:auto}
+#lapflag{
+  position:absolute; top:6px; left:8px; font-size:11px; letter-spacing:1.5px;
+  background:rgba(20,16,28,.82); padding:4px 9px; border-radius:4px;
+  color:var(--cream); text-transform:uppercase; border:1px solid #000;
+}
+#weathernote{position:absolute; top:6px; right:8px; font-size:10px; letter-spacing:1.5px;
+  background:rgba(20,16,28,.82); padding:4px 9px; border-radius:4px; color:var(--cream-dim);
+  text-transform:uppercase; border:1px solid #000;}
+/* ---------- gauges strip ---------- */
+#gauges{
+  display:flex; justify-content:space-around; align-items:stretch;
+  padding:7px 6px; gap:6px;
+  background:
+    radial-gradient(circle at 20% -40%, #3a2f52 0%, transparent 60%),
+    linear-gradient(180deg,#2b2340,#1d1828);
+  border-top:2px solid #0c0a10; border-bottom:2px solid #0c0a10;
+}
+.gauge{
+  flex:1; text-align:center; border:1.5px solid #4a3f63; border-radius:10px;
+  background:radial-gradient(circle at 50% 0%, #322a47, #201a2d 75%);
+  padding:5px 2px 4px; box-shadow:inset 0 2px 6px rgba(0,0,0,.6);
+  min-width:0;
+}
+.gauge .lbl{font-size:9px; letter-spacing:1.6px; color:var(--cream-dim); text-transform:uppercase}
+.gauge .val{font-family:var(--mono); font-size:19px; font-weight:700; line-height:1.15; color:var(--cream)}
+.gauge.heatg .val{color:var(--heat)} .gauge.speedg .val{color:var(--purple-glow)}
+/* ---------- main panel ---------- */
+#panel{flex:1; overflow-y:auto; padding:12px 12px 90px; -webkit-overflow-scrolling:touch}
+.phase-title{font-size:13px; letter-spacing:3px; text-transform:uppercase; color:var(--purple-glow); font-weight:800; margin-bottom:2px}
+.phase-hint{font-size:12.5px; color:var(--cream-dim); font-family:system-ui,sans-serif; line-height:1.45; margin-bottom:12px}
+/* gear gate */
+#geargate{display:flex; gap:10px; align-items:center; justify-content:center; margin:6px 0 14px}
+.gearopt{
+  width:56px;height:56px;border-radius:50%; border:2px solid #4a3f63; background:#171221;
+  color:var(--cream); font-size:22px; font-weight:800; display:flex;flex-direction:column;
+  align-items:center;justify-content:center; position:relative; font-family:var(--disp);
+}
+.gearopt small{font-size:8px; letter-spacing:1px; color:var(--cream-dim); font-weight:600}
+.gearopt.sel{border-color:var(--purple-glow); background:var(--purple-deep); box-shadow:0 0 14px rgba(138,92,246,.55)}
+.gearopt.heatcost.sel{border-color:var(--heat)}
+.gearopt:disabled{opacity:.28}
+.gearopt .flame{position:absolute; top:-6px; right:-4px; font-size:12px}
+/* cards */
+#hand,#played{display:flex; gap:8px; overflow-x:auto; padding:6px 2px 10px; scrollbar-width:none}
+#hand::-webkit-scrollbar,#played::-webkit-scrollbar{display:none}
+.card{
+  flex:none; width:66px; height:96px; border-radius:8px; position:relative;
+  border:2px solid #000; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-weight:800; transition:transform .12s;
+  box-shadow:0 3px 6px rgba(0,0,0,.5);
+}
+.card .cv{font-size:30px; line-height:1}
+.card .ct{font-size:8.5px; letter-spacing:1.2px; text-transform:uppercase; margin-top:5px; opacity:.85; text-align:center; padding:0 3px}
+.card.speed{background:linear-gradient(160deg,#6a48d8,#40277e); color:#fff}
+.card.speed::after,.card.up::after{content:""; position:absolute; inset:4px; border:1px solid rgba(255,255,255,.28); border-radius:5px}
+.card.up{background:linear-gradient(160deg,#8f6df2,#5636a8); color:#fff}
+.card.up .cv::before{content:"▲▲"; display:block; font-size:8px; letter-spacing:2px; color:#d9c9ff}
+.card.heatc{background:linear-gradient(160deg,#e3492b,#7c2410); color:#ffe6d2}
+.card.heatc .cv{font-size:22px}
+.card.stressc{background:linear-gradient(160deg,#c9b02c,#6d5c10); color:#fff}
+.card.stressc .cv{font-size:26px}
+.card.sel{transform:translateY(-9px); outline:3px solid var(--purple-glow); outline-offset:1px}
+.card.dim{opacity:.38}
+.card .pip{position:absolute; top:3px; left:5px; font-size:12px}
+.card .pip.r{left:auto; right:5px}
+/* buttons */
+.btnrow{display:flex; flex-wrap:wrap; gap:9px; margin-top:6px}
+button.act{
+  font-family:var(--disp); font-weight:800; letter-spacing:1.6px; text-transform:uppercase;
+  font-size:13.5px; padding:13px 18px; border-radius:9px; border:2px solid var(--purple);
+  background:linear-gradient(180deg,#6a45d8,#4b2fa8); color:#fff; flex:1; min-width:120px;
+  box-shadow:0 3px 0 #2c1a66;
+}
+button.act:active{transform:translateY(2px); box-shadow:0 1px 0 #2c1a66}
+button.act.secondary{background:#241d31; border-color:#4a3f63; color:var(--cream); box-shadow:0 3px 0 #0e0b14}
+button.act.hot{background:linear-gradient(180deg,#e3562b,#9c2c12); border-color:#ff9b6a; box-shadow:0 3px 0 #5c1a08}
+button.act.cool{background:linear-gradient(180deg,#3fa7d6,#1f6a94); border-color:#8fd4f2; box-shadow:0 3px 0 #124158}
+button.act:disabled{opacity:.35; pointer-events:none}
+/* engine heat pips */
+#enginebar{display:flex; gap:5px; align-items:center; margin:4px 0 10px; flex-wrap:wrap}
+#enginebar .elbl{font-size:10px; letter-spacing:2px; color:var(--cream-dim); text-transform:uppercase; margin-right:4px}
+.hpip{width:15px; height:22px; border-radius:3px; background:linear-gradient(180deg,#ff7a3d,#c22c0d); border:1px solid #000; box-shadow:0 0 6px rgba(227,73,43,.5)}
+.hpip.empty{background:#241d31; box-shadow:none; border-color:#3a3148}
+/* corner-heat forecast strip */
+.forecast{font-family:system-ui,sans-serif; font-size:12.5px; line-height:1.45; border-radius:8px;
+  padding:8px 11px; margin:2px 0 10px; border:1.5px solid #4a3f63; background:#1d1828; color:var(--cream-dim)}
+.forecast b{color:var(--cream)}
+.forecast.warn{border-color:var(--heat); color:#ffd9c8; background:#2a160f}
+.forecast.warn b{color:#ffb08a}
+.forecast.spin{border-color:#ff5a3c; color:#fff; background:#571507; font-weight:700}
+/* log */
+#logwrap{position:fixed; left:0; right:0; bottom:0; z-index:30;
+  background:linear-gradient(180deg,#141019 0,#0d0a12 100%); border-top:2px solid #000;}
+#logtoggle{width:100%; text-align:left; background:none; border:none; color:var(--cream-dim);
+  font-family:var(--mono); font-size:11px; padding:8px 14px; letter-spacing:.4px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+#logbody{max-height:0; overflow-y:auto; transition:max-height .25s; padding:0 14px; font-family:var(--mono); font-size:11px; line-height:1.7; color:var(--cream-dim)}
+#logwrap.open #logbody{max-height:34dvh; padding-bottom:12px}
+#logbody .me{color:var(--purple-glow)} #logbody .warn{color:var(--heat)}
+/* overlays */
+.overlay{position:fixed; inset:0; z-index:50; background:rgba(10,8,14,.93); display:flex; align-items:center; justify-content:center; padding:20px; overflow-y:auto}
+.sheet{width:100%; max-width:420px; background:linear-gradient(180deg,#2b2340,#1c1727); border:2px solid var(--purple-deep); border-radius:16px; padding:22px; box-shadow:0 10px 40px rgba(0,0,0,.7)}
+.sheet h2{font-size:24px; letter-spacing:3px; text-transform:uppercase; color:#fff}
+.sheet h2 span{color:var(--purple-glow)}
+.sheet .tag{font-size:10px; letter-spacing:2.5px; color:var(--cream-dim); text-transform:uppercase; margin-bottom:16px}
+.optgroup{margin:14px 0}
+.optgroup .olbl{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--cream-dim); margin-bottom:7px}
+.seg{display:flex; gap:7px}
+.seg button{flex:1; padding:11px 4px; border-radius:8px; border:2px solid #4a3f63; background:#171221; color:var(--cream); font-family:var(--disp); font-weight:700; font-size:14px; letter-spacing:1px}
+.seg button.sel{border-color:var(--purple-glow); background:var(--purple-deep)}
+.standrow{display:flex; align-items:center; gap:12px; padding:9px 6px; border-bottom:1px solid #362c4d; font-size:16px}
+.standrow .p{font-family:var(--mono); font-weight:700; width:26px; color:var(--cream-dim)}
+.standrow .dot{width:16px;height:16px;border-radius:50%;border:1px solid #000}
+/* toast */
+#toast{position:fixed; top:14%; left:50%; transform:translate(-50%,0); z-index:60;
+  background:rgba(20,15,30,.95); border:2px solid var(--purple); color:var(--cream);
+  border-radius:12px; padding:14px 22px; font-size:15px; letter-spacing:1px; font-weight:700;
+  text-transform:uppercase; opacity:0; pointer-events:none; transition:opacity .25s; text-align:center; max-width:86%;}
+#toast.show{opacity:1}
+#toast.hot{border-color:var(--heat); color:#ffd9c8}
+/* spin-out confirm modal */
+#confirmModal{z-index:70; background:rgba(10,8,14,.95)}
+#confirmModal .sheet{max-width:360px; border-color:#ff5a3c; box-shadow:0 10px 40px rgba(0,0,0,.75)}
+#confirmModal h2{font-size:19px; letter-spacing:2px}
+#confirmModal .cfbody{margin:0 0 16px}
+/* track svg bits */
+.spaceline{stroke:#5b5364; stroke-width:1}
+.cornerline{stroke:#ffb03d; stroke-width:2.5}
+.car{transition:transform .55s cubic-bezier(.3,.9,.4,1)}
+@media (prefers-reduced-motion: reduce){ .car{transition:none} .card{transition:none} }
+.cornerbadge circle{fill:#f0e7d3; stroke:#111; stroke-width:2}
+.cornerbadge text{font-family:var(--disp); font-weight:800; fill:#111; text-anchor:middle}
+#turnptr{transition:transform .55s ease}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="badge">17</div>
+  <div>
+    <h1>REVUP <span style="color:var(--purple-glow)">·</span> Pukekohe</h1>
+    <div class="sub" id="roundlbl">Kiwi Grand Prix</div>
+  </div>
+  <div id="standings"></div>
+</div>
+
+<div id="trackwrap">
+  <svg id="tracksvg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid meet"></svg>
+  <div id="lapflag">Lap –</div>
+  <div id="weathernote">73 spaces · 4 corners</div>
+</div>
+
+<div id="gauges">
+  <div class="gauge"><div class="lbl">Gear</div><div class="val" id="g-gear">1</div></div>
+  <div class="gauge heatg"><div class="lbl">Engine</div><div class="val" id="g-heat">–</div></div>
+  <div class="gauge speedg"><div class="lbl">Speed</div><div class="val" id="g-speed">–</div></div>
+  <div class="gauge"><div class="lbl">Hand</div><div class="val" id="g-hand">7</div></div>
+  <div class="gauge"><div class="lbl">Position</div><div class="val" id="g-pos">–</div></div>
+</div>
+
+<div id="panel"></div>
+
+<div id="logwrap">
+  <button id="logtoggle" onclick="document.getElementById('logwrap').classList.toggle('open')">▸ race radio…</button>
+  <div id="logbody"></div>
+</div>
+
+<div id="toast"></div>
+
+<div id="confirmModal" class="overlay" style="display:none">
+  <div class="sheet">
+    <h2 id="cfTitle">⚠ Spin-out warning</h2>
+    <div class="tag" id="cfTag">Corner check</div>
+    <div id="cfBody" class="forecast spin cfbody"></div>
+    <div class="btnrow">
+      <button class="act hot" id="cfYes">Send it anyway</button>
+      <button class="act secondary" id="cfNo">Back off</button>
+    </div>
+  </div>
+</div>
+<div id="setup" class="overlay"></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   HEAT — fan-made digital adaptation for personal play.
+   Core round structure per the published rules; original visuals.
+   ===================================================================== */
+
+/* ---------------- Track: Pukekohe (fan board: 73 spaces, 4 corners, 2 laps)
+   Geometry traced from the printed board art (tracks/Pukekohe.jpeg, 3:2).
+   Space 0 = first space past the finish line; travel heads "west" into the
+   infield esses, up the outer edge, along the top and around the right
+   hairpin back to the flag. Corner indices/limits match the board:
+   3 (infield entry), 3 (bottom-left), 7 (top-left), 4 (right hairpin). */
+const TRACK = {
+  name:"Pukekohe", spaces:73, defaultLaps:2, heat:6, stress:3,
+  image:"tracks/Pukekohe.jpeg", imgW:1200, imgH:800,
+  // corner line sits *before* the space index given; crossing into it triggers the check
+  corners:[ {at:9, limit:3}, {at:15, limit:3}, {at:32, limit:7}, {at:57, limit:4} ],
+  legendsLine:7,  // distance before a corner where AI rivals switch to "clearing" logic
+  // centre of each of the 73 printed spaces, in image coordinates
+  spacePts:[[509,571],[466,553],[439,520],[409,527],[366,510],[325,489],[283,470],[240,457],[194,459],[155,488],[132,525],[111,557],[156,582],[178,626],[190,676],[177,723],[136,745],[92,749],[64,713],[48,669],[46,623],[48,577],[53,530],[56,484],[57,437],[62,391],[64,345],[71,299],[73,253],[74,206],[77,160],[83,114],[104,74],[146,60],[190,59],[233,47],[277,52],[321,52],[365,51],[410,50],[454,51],[498,52],[543,50],[587,45],[631,42],[675,43],[719,49],[762,59],[804,73],[846,87],[888,103],[929,121],[969,139],[1010,157],[1050,176],[1091,192],[1124,221],[1135,265],[1116,310],[1070,327],[1021,336],[973,346],[930,370],[888,396],[849,427],[826,470],[803,514],[778,556],[742,590],[697,610],[648,615],[599,606],[553,589]]
+};
+const S = TRACK.spaces;
+
+/* ---------------- game state */
+const G = {
+  laps:2, difficulty:0, aiMode:"sim", players:[], round:0,
+  legendDeck:[], legendCard:null, legendRevealed:false,
+  queue:[], active:null, stage:"setup",
+  finishOrder:[], adrenalineIds:[]
+};
+
+/* Simulated-driver profiles (used when aiMode==="sim").
+   Rivals run a full deck/hand/engine and drive a whole round like a human;
+   the difficulty index picks a skill profile. Fields shape *how well* they drive:
+     aggression   – general willingness to push high cards / big gears
+     heatFloor    – engine-heat reserve they try to protect (lower = tighter/braver)
+     boostChance  – how often they boost when it's sensible
+     riskTolerance– how far over a corner limit they'll knowingly run (0–2)
+     upshiftBias  – tendency to sit in higher gears
+     cornerMargin – braking caution approaching corners (1 = brakes earlier) */
+const SIM_PROFILES = [
+  { key:0, name:"Davidson", aggression:0.28, heatFloor:3, boostChance:0.15, riskTolerance:0, upshiftBias:0.20, cornerMargin:1 },
+  { key:1, name:"Rookie",    aggression:0.58, heatFloor:2, boostChance:0.45, riskTolerance:1, upshiftBias:0.55, cornerMargin:0 },
+  { key:2, name:"Pro", aggression:0.88, heatFloor:1, boostChance:0.72, riskTolerance:2, upshiftBias:0.85, cornerMargin:0 },
+  { key:3, name:"Legend", aggression:0.99, heatFloor:0, boostChance:1.00, riskTolerance:2, upshiftBias:1.00, cornerMargin:0 } 
+];
+const simProfile = () => SIM_PROFILES[Math.max(0, Math.min(SIM_PROFILES.length-1, G.difficulty))];
+const botDelay   = () => 220;
+/* choose all combinations of k items from arr (small hands only) */
+function kcombos(arr,k){
+  const out=[];
+  (function rec(start,acc){
+    if(acc.length===k){ out.push(acc.slice()); return; }
+    for(let i=start;i<arr.length;i++){ acc.push(arr[i]); rec(i+1,acc); acc.pop(); }
+  })(0,[]);
+  return out;
+}
+
+const BOT_POOL = [
+  {name:"No. 1 Le Cock", color:"#009E3B"},
+  {name:"No. 2 Clogger",    color:"#FF6B00"},
+  {name:"No. 8 Ballbag",    color:"#FFED00"},
+  {name:"No. 69 Powercord Vanta",  color:"#000100"},
+  {name:"No. 21 Eagle",   color:"#FF0033"},
+  {name:"No. 44 Kereru",  color:"#0076C0"},
+  {name:"No. 9 Doc Shadow",     color:"#A6A6A6"}
+];
+
+/* Legend cards: top speed + diamond value (approximating the module deck) */
+const LEGEND_CARDS = [
+  {ts:11,d:1},{ts:12,d:0},{ts:12,d:3},{ts:13,d:2},{ts:14,d:1},
+  {ts:15,d:3},{ts:16,d:2},{ts:17,d:0},{ts:10,d:2},{ts:18,d:1}
+];
+
+/* ---------------- helpers */
+const $ = s => document.querySelector(s);
+const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const phys = t => ((t % S) + S) % S;
+function log(msg, cls){
+  const el = document.createElement("div"); if(cls) el.className = cls;
+  el.textContent = msg;
+  $("#logbody").prepend(el);
+  $("#logtoggle").textContent = "▸ " + msg;
+}
+let toastTimer=null;
+function toast(msg, hot){
+  const t=$("#toast"); t.textContent=msg; t.className = hot ? "show hot" : "show";
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"), 2100);
+}
+const wait = ms => new Promise(r=>setTimeout(r,ms));
+window.G = G; // exposed for debugging/tests
+/* stale-tap guard: every interactive stage arms a token; handlers from a
+   previous render (detached panels, double-taps) become no-ops */
+let uiToken=0;
+const arm = () => ++uiToken;
+const live = tk => tk===uiToken;
+
+/* ---------------- cards */
+function makeCard(t,v){ return {t, v:(v===undefined?null:v), id:Math.random().toString(36).slice(2)}; }
+function cardLabel(c){
+  switch(c.t){
+    case "speed": return {cv:c.v, ct:"Speed", cls:"speed"};
+    case "up0":   return {cv:0,  ct:"Start upgrade", cls:"up"};
+    case "up5":   return {cv:5,  ct:"Start upgrade", cls:"up"};
+    case "upheat":return {cv:"♨", ct:"Upgrade heat", cls:"heatc"};
+    case "heat":  return {cv:"♨", ct:"Heat", cls:"heatc"};
+    case "stress":return {cv:"＋", ct:"Stress", cls:"stressc"};
+  }
+}
+const isHeat   = c => c.t==="heat" || c.t==="upheat";
+const isStress = c => c.t==="stress";
+const isSpeed14= c => c.t==="speed";           // "original 1–4" cards only
+const discardable = c => !isHeat(c) && !isStress(c);
+
+/* ---------------- heat conservation
+   The map defines the total pool of Heat per car (Pukekohe: 6). Weather /
+   road-condition modifiers would adjust heatCap(), never the invariant:
+   engine + Heat cards in deck/discard/hand/play must NEVER exceed the cap.
+   The starting "upgrade Heat" card counts as one of those 6 — it starts in
+   the deck, so the engine starts with cap−1. Cooling it down (hand→engine)
+   is a transfer, not creation. */
+let WEATHER_HEAT_MOD = 0;   // weather car-setup: pool size change (+1 / −1 heat in/out of the game)
+let WEATHER_STRESS_MOD = 0; // weather car-setup: stress cards added to / removed from the deck
+function heatCap(){ return TRACK.heat + WEATHER_HEAT_MOD; }
+function totalHeat(p){
+  const n = a => a.filter(isHeat).length;
+  return p.engine + n(p.deck) + n(p.discard) + n(p.hand) + n(p.play);
+}
+/* defensive check after every heat mutation: clamp + shout if the pool grew */
+function auditHeat(p, ctx){
+  if(p.isBot && !p.sim) return;          // Legend bots have no heat pool; sim drivers do
+  const t = totalHeat(p), cap = heatCap();
+  if(t > cap){
+    const over = t - cap;
+    p.engine = Math.max(0, p.engine - over);
+    if(!p.isBot) log(`Heat audit (${ctx}): pool hit ${t}/${cap} — engine clamped by ${over}.`, "warn");
+  }
+}
+
+/* ---------------- players */
+/* a fresh, shuffled starting deck (12 speed, 3 starting upgrades, stress per map+weather) */
+function buildDeck(){
+  const deck = [];
+  for(let v=1; v<=4; v++) for(let i=0;i<3;i++) deck.push(makeCard("speed",v));
+  deck.push(makeCard("up0"), makeCard("up5"), makeCard("upheat"));
+  const nStress = Math.max(0, TRACK.stress + WEATHER_STRESS_MOD);
+  for(let i=0;i<nStress;i++) deck.push(makeCard("stress"));
+  return shuffle(deck);
+}
+function makeHuman(){
+  const deck = buildDeck();
+  return {
+    id:"you", name:"No. 17 — You", color:"#8a5cf6", isBot:false,
+    // engine holds cap−1: the 6th Heat is the upgrade Heat card riding in the deck
+    total:0, spot:0, gear:1, engine:heatCap()-1,
+    deck, discard:[], hand:[], play:[],
+    finished:false, finishRound:null,
+    // per-round scratch
+    speed:0, crossings:[], boostUsed:false, cooldownLeft:0,
+    adrenaline:false, adrSpeedUsed:false, cluttered:false, spunOut:false
+  };
+}
+function makeBot(i){
+  const b = BOT_POOL[i];
+  const base = { id:"bot"+i, name:b.name, color:b.color, isBot:true,
+    total:0, spot:0, finished:false, finishRound:null };
+  if(G.aiMode==="sim"){
+    // full "human-like" driver: its own deck, hand, engine and gear
+    base.sim = true;
+    base.deck = buildDeck(); base.discard=[]; base.hand=[]; base.play=[];
+    base.gear = 1; base.engine = heatCap()-1;
+    base.speed=0; base.crossings=[]; base.boostUsed=false; base.cooldownLeft=0;
+    base.adrenaline=false; base.adrSpeedUsed=false; base.cluttered=false; base.spunOut=false;
+  }
+  return base;
+}
+
+/* ---------------- deck ops */
+function draw(p){
+  if(p.deck.length===0){
+    if(p.discard.length===0) return null;
+    p.deck = shuffle(p.discard); p.discard = [];
+    log("You reshuffle your discard into a new draw deck.");
+  }
+  return p.deck.pop();
+}
+function drawToHand(p,n){
+  for(let i=0;i<n;i++){ const c=draw(p); if(!c) break; p.hand.push(c); }
+}
+/* flip from deck until an original 1–4 Speed card appears (stress / boost) */
+function flipForSpeed(p){
+  const junk=[];
+  let tries = p.deck.length + p.discard.length + 2; // one full cycle max
+  while(tries-- > 0){
+    const c = draw(p);
+    if(!c) break;
+    if(isSpeed14(c)) return {v:c.v, card:c, junk};
+    junk.push(c); p.discard.push(c);
+  }
+  return {v:0, junk}; // no speed cards reachable — treat as 0
+}
+
+/* ---------------- occupancy & movement */
+function carsAt(space, exclude){
+  return G.players.filter(p => !p.finished && p!==exclude && phys(p.total)===space);
+}
+function spaceFull(space, exclude){ return carsAt(space, exclude).length >= 2; }
+function takeSpot(p){
+  const others = carsAt(phys(p.total), p);
+  p.spot = others.some(o=>o.spot===0) ? 1 : 0;
+}
+/* move exactly dist; if landing space full, fall back to nearest free space behind.
+   Records corner-line crossings on the car for the corner check step. */
+function moveCar(p, dist, opts={}){
+  if(dist<=0) return 0;
+  const from = p.total;
+  let target = from + dist;
+  while(target>from && spaceFull(phys(target), p)) target--;
+  if(target===from) return 0;
+  p.total = target; takeSpot(p);
+  if(opts.trackCrossings!==false && p.crossings){   // human + simulated drivers track corner lines; Legend bots don't
+    for(const c of cornerTotals()){
+      if(from < c && target >= c && c <= G.laps*S) p.crossings.push(c);
+    }
+  }
+  renderCars();
+  return target-from;
+}
+function cornerTotals(){
+  const out=[];
+  for(let lap=0; lap<G.laps; lap++) for(const c of TRACK.corners) out.push(lap*S + c.at);
+  return out.sort((a,b)=>a-b);
+}
+function cornerIdxOf(cornerTotal){
+  const at = ((cornerTotal % S) + S) % S;
+  return TRACK.corners.findIndex(c=>c.at===at);
+}
+function limitAt(cornerTotal){
+  const idx = cornerIdxOf(cornerTotal);
+  let lim = TRACK.corners[idx].limit;
+  const tok = (G.weather && G.weather.cornerTok) ? G.weather.cornerTok[idx] : null;
+  if(tok==="lim+1") lim += 1; else if(tok==="lim-1") lim -= 1;   // Adjust Speed Limit road-condition token
+  return Math.max(0, lim);
+}
+function cornerHasOverheat(cornerTotal){
+  const i = cornerIdxOf(cornerTotal);
+  return !!(G.weather && G.weather.cornerTok && G.weather.cornerTok[i]==="overheat");
+}
+function nextCornerTotal(total){
+  for(const c of cornerTotals()) if(c > total) return c;
+  return Infinity; // past all corners → run to the flag
+}
+const finishedLine = p => p.total >= G.laps*S;
+
+/* ---------------- corner-heat forecasting
+   Speed for the check = all card values + boost + adrenaline. Distance moved
+   equals speed pre-blocking, so projecting "move d from here" doubles as
+   "check corners at speed d" for the pre-boost estimate. */
+function crossingsForMove(from, dist){
+  const out=[];
+  for(const c of cornerTotals()) if(from < c && from+dist >= c && c <= G.laps*S) out.push(c);
+  return out;
+}
+/* deterministic wind shift on a corner whose approach is a weather sector
+   (Strong Wind): tailwind +1 / headwind −1 effective speed — mirrors the real
+   Check Corner so the spin-out forecast & confirm gate stay accurate in wind. */
+function windAdjAt(ct){
+  const wDef = (G.weather && G.weather.def) ? G.weather.def.sector : {};
+  if(!(wDef.wind && approachIsWeatherSector(ct))) return 0;
+  const cls = windClassAt(sectorBefore(ct));
+  return cls==='tail' ? 1 : cls==='head' ? -1 : 0;
+}
+function cornerHeatCost(speed, crossTotals){
+  let n=0;
+  for(const ct of [...new Set(crossTotals)]){
+    const eff = speed + windAdjAt(ct);                 // wind can raise/lower corner speed
+    const over = Math.max(0, eff - limitAt(ct));
+    if(over>0) n += over + (cornerHasOverheat(ct)?1:0); // Overheat token adds 1 to the bill when you're over
+  }
+  return n;
+}
+/* always-on "how far to the next corner" strip, shown while shifting / picking cards */
+function cornerDistanceHTML(you){
+  const nc = nextCornerTotal(you.total);
+  if(nc===Infinity)
+    return `<div class="forecast">🏁 <b>No corner before the finish</b> — nothing to brake for, send it.</div>`;
+  const dc = nc - you.total;
+  const lim = limitAt(nc);
+  const oh = cornerHasOverheat(nc) ? ' · <b style="color:var(--heat)">🔥 overheat</b>' : "";
+  const nc2 = nextCornerTotal(nc);
+  let second = "";
+  if(nc2!==Infinity && (nc2 - you.total) <= dc + 9)
+    second = ` · then another in <b>${nc2-you.total}</b> (limit ${limitAt(nc2)})`;
+  return `<div class="forecast">🏁 <b>Next corner line: ${dc} space${dc===1?"":"s"} ahead</b> — speed limit <b style="color:var(--purple-glow)">${lim}</b>${oh}${second}. Reach it above the limit and you'll pay Heat.</div>`;
+}
+/* strip shown in Reveal/React: what the Check Corner step will bill you */
+function heatForecastHTML(you, speed, crossings, label){
+  const pre = label || "Corner check";
+  const uniq = [...new Set(crossings)].sort((a,b)=>a-b);
+  if(uniq.length===0){
+    const nc = nextCornerTotal(you.total);
+    const nxt = nc===Infinity ? "no corners left before the flag"
+      : `next corner line in ${nc-you.total} space${nc-you.total===1?"":"s"}, limit ${limitAt(nc)}`;
+    return `<div class="forecast">${pre}: no corner line crossed yet — ${nxt}.</div>`;
+  }
+  const cost = cornerHeatCost(speed, uniq);
+  const lims = uniq.map(ct=>limitAt(ct)).join(" & ");
+  if(cost===0)
+    return `<div class="forecast">${pre}: limit-${lims} corner${uniq.length>1?"s":""} crossed at speed ${speed} — clean, <b>no Heat owed</b>.</div>`;
+  if(cost<=you.engine)
+    return `<div class="forecast warn">${pre}: speed ${speed} vs limit ${lims} — <b>${cost} Heat</b> will leave the engine (${you.engine} in engine).</div>`;
+  return `<div class="forecast spin">${pre}: ${cost} Heat owed but only ${you.engine} in the engine — ⚠ SPIN OUT!</div>`;
+}
+
+/* "Are you sure?" spin-out gate — resolves true if the player commits anyway.
+   Only shown when an action (boost / slipstream) would actually spin the car out.
+   Hardened so it can't get wedged: only one prompt is ever live, every open wires
+   fresh handlers, tapping the dark backdrop counts as "back off", and any pending
+   prompt is safely resolved (false) before a new one opens. */
+let _confirmPending=false;
+function confirmSpin(bodyHTML, {tag="Corner check", yes="Send it anyway"}={}){
+  const m=$("#confirmModal");
+  // if a prompt is somehow already open, cancel it cleanly first
+  if(_confirmPending && m._resolve){ m._resolve(false); }
+  return new Promise(resolve=>{
+    _confirmPending=true;
+    $("#cfTag").textContent=tag;
+    $("#cfBody").innerHTML=bodyHTML;
+    $("#cfYes").textContent=yes;
+    m.style.display="flex";
+    let done=false;
+    const finish=v=>{
+      if(done) return; done=true; _confirmPending=false; m._resolve=null;
+      m.style.display="none";
+      $("#cfYes").onclick=null; $("#cfNo").onclick=null; m.onclick=null;
+      resolve(v);
+    };
+    m._resolve=()=>finish(false);       // used if a newer prompt supersedes this one
+    $("#cfYes").onclick=e=>{ e.stopPropagation(); finish(true); };
+    $("#cfNo").onclick =e=>{ e.stopPropagation(); finish(false); };
+    // tap on the backdrop (outside the sheet) = back off
+    m.onclick=e=>{ if(e.target===m) finish(false); };
+  });
+}
+
+/* ---------------- setup screen */
+function showSetup(){
+  const el = $("#setup");
+  el.style.display="flex";
+  el.innerHTML = `
+    <div class="sheet">
+      <h2>Heat <span>· Pukekohe</span></h2>
+      <div class="tag">New Zealand International Grand Prix — fan table, private garage build</div>
+      <div class="optgroup"><div class="olbl">Rival cars (AI legends) — up to 7, for an 8-car grid</div>
+        <div class="seg" id="segbots" style="gap:5px">
+          ${[1,2,3,4,5,6,7].map(v=>`<button data-v="${v}"${v===7?' class="sel"':''}>${v}</button>`).join("")}
+        </div></div>
+      <div class="optgroup"><div class="olbl">Laps</div>
+        <div class="seg" id="seglaps">
+          <button data-v="1">1 · Sprint</button><button data-v="2" class="sel">2 · Grand Prix</button>
+        </div></div>
+      <div class="optgroup"><div class="olbl">Rival AI</div>
+        <div class="seg" id="segai">
+          <button data-v="sim" class="sel">Full drivers</button><button data-v="legend">Legends</button>
+        </div>
+        <div id="aiblurb" class="phase-hint" style="margin:7px 0 0;min-height:14px">Simulated drivers — each rival runs its own deck, gears &amp; Heat and drives a full round. Pace/skill sets how hard they push and how tightly they manage Heat.</div>
+      </div>
+      <div class="optgroup"><div class="olbl">Rival pace / skill</div>
+        <div class="seg" id="segdiff">
+          <button data-v="0" class="sel">Davidson</button><button data-v="1">Rookie</button><button data-v="2">Pro</button><button data-v="3">Legend</button>
+        </div></div>
+      <div class="optgroup"><div class="olbl">Weather &amp; road conditions (advanced module)</div>
+        <select id="selweather" style="width:100%;padding:11px 10px;border-radius:8px;border:2px solid #4a3f63;background:#171221;color:var(--cream);font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.5px">
+          <option value="none">Dry — no weather</option>
+          <option value="random">🎲 Random weather</option>
+          ${Object.keys(WEATHER_TYPES).filter(k=>k!=="none").map(k=>`<option value="${k}">${WEATHER_TYPES[k].icon} ${WEATHER_TYPES[k].name}</option>`).join("")}
+        </select>
+        <div id="weatherblurb" class="phase-hint" style="margin:8px 0 0;min-height:16px"></div>
+      </div>
+      <div class="btnrow"><button class="act" id="startbtn">Start your engine</button></div>
+      <div class="phase-hint" style="margin-top:14px">You drive the purple No. 17. Each round: pick a gear, play that many cards, then drive the turn out — boost, slipstream and watch corner speed limits, or you'll cook the engine.</div>
+    </div>`;
+  for(const seg of ["segbots","seglaps","segdiff","segai"]){
+    $("#"+seg).addEventListener("click", e=>{
+      if(e.target.tagName!=="BUTTON") return;
+      [...$("#"+seg).children].forEach(b=>b.classList.remove("sel"));
+      e.target.classList.add("sel");
+      if(seg==="segai"){
+        $("#aiblurb").textContent = e.target.dataset.v==="sim"
+          ? "Simulated drivers — each rival runs its own deck, gears & Heat and drives a full round. Pace/skill sets how hard they push and how tightly they manage Heat."
+          : "Official Legends module — rivals move by a shared pace card, ignoring gears & Heat.";
+      }
+    });
+  }
+  const selW=$("#selweather");
+  const showBlurb=()=>{ const k=selW.value;
+    $("#weatherblurb").textContent = k==="random" ? "A random weather will be drawn when the lights go out."
+      : (WEATHER_TYPES[k] ? WEATHER_TYPES[k].blurb : ""); };
+  selW.addEventListener("change", showBlurb); showBlurb();
+  $("#startbtn").onclick = ()=>{
+    const bots = +$("#segbots .sel").dataset.v;
+    G.laps = +$("#seglaps .sel").dataset.v;
+    G.difficulty = +$("#segdiff .sel").dataset.v;
+    G.aiMode = $("#segai .sel").dataset.v;
+    let wk = selW.value;
+    if(wk==="random"){ const keys=Object.keys(WEATHER_TYPES).filter(k=>k!=="none"); wk=keys[Math.floor(Math.random()*keys.length)]; }
+    G.weatherKey = wk;
+    el.style.display="none";
+    startRace(bots);
+  };
+}
+
+/* ---------------- race start */
+function startRace(botCount){
+  // Weather is prepared BEFORE the car is built, so its car-setup modifiers
+  // (extra/removed Heat & Stress) shape the deck the player draws from.
+  setupWeather(G.weatherKey || "none");
+  G.players = [makeHuman()];
+  applyWeatherCarSetup(G.players[0]);
+  for(let i=0;i<botCount;i++){
+    const b = makeBot(i); G.players.push(b);
+    if(b.sim) applyWeatherCarSetup(b);   // sim drivers get the same car-setup as you
+  }
+  // starting grid: staggered spots just past the finish line
+  const grid = shuffle([...G.players]);
+  const slots = []; // 8 slots in the printed grid boxes behind the flag, pole first
+  for(let i=0;i<8;i++) slots.push({t:-(1+Math.floor(i/2)), s:i%2});
+  grid.forEach((p,i)=>{ p.total=slots[i].t; p.spot=slots[i].s; });
+  G.legendDeck = shuffle([...LEGEND_CARDS]);
+  G.round=0; G.finishOrder=[];
+  rollRoadConditions();           // draw one token per corner (needs the legend deck for wind direction)
+  const you = G.players[0];
+  drawToHand(you,7);
+  if(G.aiMode==="sim") for(const p of G.players) if(p.sim) drawToHand(p,7);   // rivals hold a hand too
+  log(`Lights out at ${TRACK.name}! ${G.laps} lap${G.laps>1?"s":""}, ${botCount} ${G.aiMode==="sim"?simProfile().name+"-level driver":"rival"}${botCount>1?"s":""}.`,"me");
+  logWeatherSetup();
+  renderCars(); renderGauges(); updateWeatherNote();
+  startRound();
+}
+
+/* ---------------- round flow */
+function startRound(){
+  G.round++;
+  const you = G.players[0];
+  you.speed=0; you.crossings=[]; you.boostUsed=false; you.adrenaline=false;
+  you.adrSpeedUsed=false; you.cluttered=false; you.spunOut=false; you.play=[];
+  G.legendCard=null; G.legendRevealed=false;
+  $("#roundlbl").textContent = `Round ${G.round}`;
+  renderGauges();
+  if(you.finished){ // player done: sim remaining bots quickly
+    runBotsOnly();
+    return;
+  }
+  stageShift();
+}
+
+/* ---- 1. Shift Gears */
+function stageShift(){
+  const tk=arm();
+  const you=G.players[0];
+  let pick=you.gear;
+  const opts=[];
+  for(let g=Math.max(1,you.gear-2); g<=Math.min(4,you.gear+2); g++) opts.push(g);
+  const playableN = you.hand.filter(c=>!isHeat(c)).length;
+  const heatN = you.hand.length - playableN;
+  const panel=$("#panel");
+  panel.innerHTML = `
+    <div class="phase-title">1 · Shift gears</div>
+    <div class="phase-hint">One step is free. Jumping two gears costs <b style="color:var(--heat)">1 Heat</b>, paid now. Your gear sets how many cards you must play.</div>
+    ${cornerDistanceHTML(you)}
+    <div id="geargate"></div>
+    ${engineBarHTML(you)}
+    <div class="phase-hint" style="margin:4px 0 0">Your hand — <b>${playableN}</b> playable${heatN?`, <b style="color:var(--heat)">${heatN}♨</b> stuck (Heat can't be played)`:""}:</div>
+    <div id="hand"></div>
+    <div class="btnrow"><button class="act" id="confirmgear">Engage gear <span id="gpick">${pick}</span></button></div>`;
+  /* read-only hand preview so gear choice is informed, like holding your cards at the table */
+  const handEl=$("#hand");
+  you.hand.forEach(c=>{
+    const el=renderCard(c);
+    if(isHeat(c)) el.classList.add("dim");
+    handEl.appendChild(el);
+  });
+  const wetSec = weatherShiftPenaltyHere(you);   // Wet Asphalt weather sector: shifting DOWN costs +1 Heat per gear
+  if(wetSec) panel.querySelector(".phase-hint").innerHTML +=
+    ` <b style="color:var(--cool)">Wet asphalt:</b> shifting down costs <b style="color:var(--heat)">1 Heat per gear</b> here.`;
+  const gate=$("#geargate");
+  for(const g of opts){
+    const two = Math.abs(g-you.gear)===2;
+    const clut = g > playableN;
+    const cost = shiftHeatCost(you.gear, g, wetSec);
+    const b=document.createElement("button");
+    b.className="gearopt"+(cost>0?" heatcost":"")+(g===pick?" sel":"");
+    b.innerHTML = `${g}<small>${clut?'<span style="color:var(--heat)">clutter!</span>':g===you.gear?"stay":g>you.gear?"↑":"↓"}${cost>0?` <span style="color:var(--heat)">${cost}♨</span>`:""}</small>${cost>0?'<span class="flame">🔥</span>':""}`;
+    b.disabled = cost>you.engine;
+    b.onclick=()=>{ pick=g; [...gate.children].forEach(x=>x.classList.remove("sel")); b.classList.add("sel"); $("#gpick").textContent=g; };
+    gate.appendChild(b);
+  }
+  $("#confirmgear").onclick=()=>{
+    if(!live(tk)) return;
+    const cost = shiftHeatCost(you.gear, pick, wetSec);
+    if(cost>you.engine){ toast("Not enough Heat to shift","hot"); return; }
+    if(cost>0){
+      payHeat(you,cost);
+      const dn = pick<you.gear;
+      log(`Shift ${you.gear}→${pick} costs ${cost} Heat${wetSec&&dn?" (wet asphalt)":""}.`,"me");
+      toast(`Shift · ${cost} Heat`,"hot");
+    }
+    you.gear=pick; renderGauges();
+    stagePlay();
+  };
+}
+
+/* ---- 2. Play Cards */
+function stagePlay(){
+  const tk=arm();
+  const you=G.players[0];
+  const playable = you.hand.filter(c=>!isHeat(c));
+  const cluttered = playable.length < you.gear;
+  // Low Sun weather sector: you must play at least one Stress card if you hold one (blinded — no brake points).
+  const mustStress = !cluttered && isWeatherSector(curSector(you)) && !!(G.weather && G.weather.def.sector.lowSun) && you.hand.some(isStress);
+  const stressSatisfied = () => !mustStress || you.hand.some(c=>sel.has(c.id) && isStress(c));
+  const sel=new Set();
+  const panel=$("#panel");
+  panel.innerHTML = `
+    <div class="phase-title">2 · Play cards</div>
+    <div class="phase-hint">${cluttered
+      ? `<b style="color:var(--heat)">Cluttered hand!</b> Too many Heat cards to play gear ${you.gear}. You'll dump what you can, the car won't move, and you drop to 1st gear.`
+      : `Gear ${you.gear}: choose exactly <b>${you.gear}</b> card${you.gear>1?"s":""}. Heat cards can't be played — cool them down instead. Stress ＋ draws a random speed.`}</div>
+    ${cornerDistanceHTML(you)}
+    ${mustStress?`<div class="forecast warn" style="margin-bottom:8px">🌅 <b>Low sun</b> — you're blinded here and must include at least one <b>Stress ＋</b> card this round.</div>`:""}
+    <div id="hand"></div>
+    <div class="phase-hint" id="landnote" style="min-height:18px;margin-bottom:6px"></div>
+    <div class="btnrow"><button class="act" id="playbtn" disabled>Reveal &amp; drive</button></div>`;
+  const handEl=$("#hand");
+  /* preview where the selected cards would land the car (before boost /
+     slipstream / blocking). Stress ＋ shows the possible band instead. */
+  function updateLanding(){
+    const note=$("#landnote"); if(!note) return;
+    const chosen=you.hand.filter(c=>sel.has(c.id));
+    const known=chosen.reduce((s,c)=> c.t==="speed"? s+c.v : c.t==="up5"? s+5 : s, 0);
+    const nS=chosen.filter(isStress).length;
+    if(chosen.length===0){ clearHighlights(); note.textContent=""; return; }
+    /* projected Check Corner bill if this were the final speed (pre-boost/slipstream) */
+    const bill = d => cornerHeatCost(d, crossingsForMove(you.total, d));
+    if(nS===0){
+      if(known===0){ clearHighlights(); note.textContent="These cards give 0 speed — no movement."; return; }
+      highlightSpaces([{total:you.total+known, kind:"exact"}]);
+      const cost=bill(known);
+      let heatTxt="";
+      if(cost>0){
+        heatTxt = cost<=you.engine
+          ? ` · Corner bill: <b style="color:var(--heat)">≈${cost} Heat</b> (engine ${you.engine})`
+          : ` · <b style="color:#ff5a3c">⚠ SPIN OUT</b> — ${cost} Heat owed, engine only has ${you.engine}`;
+      } else if(crossingsForMove(you.total,known).length){
+        heatTxt = ` · crosses a corner <b style="color:#9fe08a">clean</b>`;
+      }
+      note.innerHTML=`Landing: <b style="color:var(--purple-glow)">+${known}</b> — highlighted on the track (before boost / slipstream; blocking ignored).${heatTxt}`;
+    }else{
+      const min=known+nS, max=known+nS*4;
+      const items=[]; for(let d=min; d<=max; d++) items.push({total:you.total+d, kind:"range"});
+      highlightSpaces(items);
+      let cMin=Infinity, cMax=0;
+      for(let d=min; d<=max; d++){ const c=bill(d); cMin=Math.min(cMin,c); cMax=Math.max(cMax,c); }
+      let heatTxt="";
+      if(cMax>0){
+        if(cMin>you.engine) heatTxt = ` · <b style="color:#ff5a3c">⚠ SPIN OUT guaranteed</b> (${cMin}+ Heat owed, engine ${you.engine})`;
+        else if(cMax>you.engine) heatTxt = ` · corner bill ≈${cMin}–${cMax} Heat — <b style="color:#ff5a3c">spin-out risk</b> (engine ${you.engine})`;
+        else if(cMax>0) heatTxt = ` · corner bill <b style="color:var(--heat)">≈${cMin}–${cMax} Heat</b> (engine ${you.engine})`;
+      }
+      note.innerHTML=`Landing range: <b style="color:var(--stress)">+${min} to +${max}</b> — ${nS} stress ＋ card${nS>1?"s":""}, each flips 1–4.${heatTxt}`;
+    }
+  }
+  you.hand.forEach(c=>{
+    const el=renderCard(c);
+    if(isHeat(c)) el.classList.add("dim");
+    else el.onclick=()=>{
+      if(cluttered) return;
+      if(sel.has(c.id)) sel.delete(c.id); else if(sel.size<you.gear) sel.add(c.id);
+      el.classList.toggle("sel", sel.has(c.id));
+      $("#playbtn").disabled = sel.size!==you.gear || !stressSatisfied();
+      updateLanding();
+    };
+    handEl.appendChild(el);
+  });
+  updateLanding();
+  const btn=$("#playbtn");
+  if(cluttered){ btn.disabled=false; btn.textContent="Cluttered — coast this round"; btn.classList.add("hot"); }
+  btn.onclick=()=>{
+    if(!live(tk)) return;
+    if(cluttered){
+      you.cluttered=true;
+      // rule: play every playable card, cover the difference with Heat; car doesn't move
+      const down = you.hand.filter(c=>!isHeat(c));
+      let need = you.gear - down.length;
+      for(const c of you.hand){ if(need>0 && isHeat(c)){ down.push(c); need--; } }
+      you.play = down;
+      you.hand = you.hand.filter(c=>!down.includes(c));
+      log("Cluttered hand: your car doesn't move this round. Gear drops to 1st.","warn");
+      toast("Cluttered hand — no move","hot");
+      you.gear=1;
+    }else{
+      you.play = you.hand.filter(c=>sel.has(c.id));
+      you.hand = you.hand.filter(c=>!sel.has(c.id));
+    }
+    renderGauges();
+    beginMovementPhase();
+  };
+}
+
+/* ---- turn order & per-car resolution (steps 3–9) */
+function beginMovementPhase(){
+  clearHighlights();
+  const racers = G.players.filter(p=>!p.finished);
+  racers.sort((a,b)=> b.total-a.total || a.spot-b.spot);
+  G.queue = racers;
+  // adrenaline: last car this round; last TWO if 5+ cars started the race
+  const adrN = G.players.length >= 5 ? 2 : 1;
+  G.adrenalineIds = racers.slice(-adrN).map(p=>p.id);
+  nextInQueue();
+}
+function waitingPanel(msg){
+  $("#panel").innerHTML = `
+    <div class="phase-title">On track</div>
+    <div class="phase-hint">${msg}</div>
+    <div class="phase-hint" style="color:#6f6584">Open the race radio below to follow the action.</div>`;
+}
+async function nextInQueue(){
+  if(G.weather && G.weather.aborted){ raceOver(); return; }   // thunderstorm red flag
+  const p = G.queue.shift();
+  if(!p){ endRound(); return; }
+  pointTurn(p);
+  if(p.isBot){ waitingPanel(`${p.name} is driving…`); await (p.sim ? simBotTurn(p) : botTurn(p)); nextInQueue(); }
+  else playerReveal();
+}
+
+/* ---- 3. Reveal & Move (player) */
+function playerReveal(){
+  const you=G.players[0];
+  if(you.cluttered){ playerReplenish(); return; }
+  // resolve stress (＋) now
+  const notes=[];
+  for(const c of you.play){
+    if(isStress(c)){
+      const r=flipForSpeed(you);
+      c.resolved=r.v;
+      if(r.card) you.play.push(Object.assign(r.card,{fromStress:true}));
+      if(r.junk.length) notes.push(`Stress flip burned ${r.junk.length} card${r.junk.length>1?"s":""} off your deck`);
+    }
+  }
+  const cardSpeed = you.play.reduce((s,c)=>{
+    if(c.t==="speed") return s+c.v;
+    if(c.t==="up5") return s+5;
+    return s; // up0, stress shells, junk
+  },0);
+  you.speed = cardSpeed;
+  const moved = moveCar(you, cardSpeed);
+  const blocked = moved<cardSpeed;
+  renderGauges();
+  if(G.adrenalineIds.includes(you.id)){ you.adrenaline=true; }
+  const panel=$("#panel");
+  panel.innerHTML = `
+    <div class="phase-title">3 · Reveal &amp; move</div>
+    <div class="phase-hint">Speed <b style="color:var(--purple-glow)">${cardSpeed}</b>${blocked?` — blocked, only moved ${moved}`:""}. ${notes.join(". ")}${you.adrenaline?` <b style="color:var(--purple-glow)">Adrenaline!</b> You're among the last this round: +1 speed and +1 cooldown available.`:""}</div>
+    ${heatForecastHTML(you, you.speed, you.crossings)}
+    <div id="played"></div>
+    <div class="btnrow"><button class="act" id="toreact">On to React</button></div>`;
+  const pl=$("#played");
+  you.play.forEach(c=>{ pl.appendChild(renderCard(c)); });
+  log(`You reveal ${cardSpeed} speed${blocked?` (blocked at ${moved})`:""}.`,"me");
+  const tk=arm();
+  $("#toreact").onclick = ()=>{ if(live(tk)) playerReact(); };
+}
+
+/* ---- 5. React (cooldown / boost / adrenaline) */
+function playerReact(){
+  const tk=arm();
+  const you=G.players[0];
+  // weather at the car's current resting position
+  const sec = curSector(you);
+  const wSec = isWeatherSector(sec);
+  const wDef = G.weather ? G.weather.def.sector : {};
+  const noCool  = wSec && !!wDef.noCool;                 // Extreme Heat weather sector
+  const coolBonus = (wSec && wDef.cool) ? wDef.cool : 0; // Cold / Light Rain weather sector
+  const heatCtrl = sectorTokOf(sec)==="heatctrl";        // Heat-control road-condition sector: boost is free
+  let baseCool = you.gear===1?3 : you.gear===2?1 : 0;
+  baseCool += coolBonus;
+  if(you.cooldownLeft===undefined || !you._coolInit){
+    you.cooldownLeft = noCool ? 0 : baseCool + (you.adrenaline?1:0);
+    you._coolInit=true;
+  }
+  const heatInHand = you.hand.filter(isHeat).length;
+  let wNote="";
+  if(noCool) wNote=`<div class="forecast warn" style="margin-bottom:8px">🌡 <b>Extreme heat</b> — no cooling allowed in this sector.</div>`;
+  else if(coolBonus) wNote=`<div class="forecast" style="margin-bottom:8px">❄ <b>+${coolBonus} cooldown</b> available in this sector.</div>`;
+  if(heatCtrl) wNote+=`<div class="forecast" style="margin-bottom:8px">🛠 <b>Heat control</b> — your boost is free here (no Heat).</div>`;
+  const panel=$("#panel");
+  panel.innerHTML = `
+    <div class="phase-title">5 · React</div>
+    <div class="phase-hint">Use symbols in any order. Cooldown returns Heat from hand to the engine. Boost pays 1 Heat to flip a bonus speed card — it adds to your speed <b>and the corner bill below</b>.</div>
+    ${wNote}
+    ${heatForecastHTML(you, you.speed, you.crossings, "Owed at corner check")}
+    ${engineBarHTML(you)}
+    <div class="btnrow">
+      <button class="act cool" id="coolbtn" ${you.cooldownLeft<1||heatInHand<1?"disabled":""}>Cooldown ×${you.cooldownLeft} <small>(${heatInHand}♨ in hand)</small></button>
+      <button class="act hot" id="boostbtn" ${you.boostUsed||(you.engine<1&&!heatCtrl)?"disabled":""}>Boost · ${heatCtrl?"free":"1 Heat"}</button>
+    </div>
+    <div class="btnrow">
+      ${you.adrenaline && !you.adrSpeedUsed ? `<button class="act" id="adrbtn">Adrenaline +1 space</button>`:""}
+      <button class="act secondary" id="donereact">Done reacting</button>
+    </div>`;
+  $("#coolbtn") && ($("#coolbtn").onclick=()=>{
+    if(!live(tk)) return;
+    const idx = you.hand.findIndex(isHeat);
+    if(idx<0) return; // no Heat card in hand — nothing to cool (never mint heat)
+    if(you.engine >= heatCap()){ toast("Engine already at the map's heat cap","hot"); return; }
+    const c = you.hand.splice(idx,1)[0];   // the card leaves circulation…
+    you.engine++;                          // …and becomes 1 engine heat: net zero
+    you.cooldownLeft--;
+    auditHeat(you,"cooldown");
+    log(`Cooldown: 1 ${c.t==="upheat"?"upgrade ":""}Heat back into the engine.`,"me");
+    renderGauges(); playerReact();
+  });
+  $("#boostbtn") && ($("#boostbtn").onclick=async ()=>{
+    if(!live(tk)) return;
+    // Look ahead: a boost flips a random 1–4 and may push the car over a corner
+    // limit. Check every possible flip so we can warn before committing the Heat.
+    const engineAfter = you.engine - (heatCtrl?0:1);
+    let anySpin=false, allSpin=true, worst=0;
+    for(let v=1; v<=4; v++){
+      const nc=crossingsForMove(you.total, v);
+      const bill=cornerHeatCost(you.speed+v, [...you.crossings, ...nc]);
+      if(bill>worst) worst=bill;
+      if(bill>engineAfter) anySpin=true; else allSpin=false;
+    }
+    if(anySpin){
+      const body = allSpin
+        ? `A boost here sends you over the next corner limit no matter what you flip. The check will owe more Heat than the <b>${engineAfter}</b> left in the engine after the boost — you'll <b>spin out</b>, drop to 1st gear and pick up Stress.`
+        : `A boost risks the next corner: a high flip could owe up to <b>${worst} Heat</b> against just <b>${engineAfter}</b> left in the engine after paying for the boost, which would <b>spin you out</b>.`;
+      const ok = await confirmSpin(body, {tag:"Boost", yes:"Boost anyway"});
+      if(!ok || !live(tk)) return;
+    }
+    if(!heatCtrl){ if(you.engine<1) return; payHeat(you,1); }  // Heat control: boost costs no Heat
+    you.boostUsed=true;
+    const r=flipForSpeed(you);
+    if(r.card) you.discard.push(r.card);
+    you.speed += r.v;
+    const m=moveCar(you,r.v);
+    log(`Boost! Flipped a ${r.v}${m<r.v?` (blocked at ${m})`:""}.`,"me");
+    toast(`Boost +${r.v}`,"hot"); renderGauges(); playerReact();
+  });
+  $("#adrbtn") && ($("#adrbtn").onclick=async ()=>{
+    if(!live(tk)) return;
+    // +1 speed can itself push you over the next corner — warn before committing.
+    const nc=crossingsForMove(you.total, 1);
+    const bill=cornerHeatCost(you.speed+1, [...you.crossings, ...nc]);
+    if(bill>you.engine){
+      const body = `Adrenaline's +1 speed pushes you over a limit-${[...new Set([...you.crossings,...nc])].map(limitAt).join(" & ")} corner. The check would owe <b>${bill} Heat</b> against just <b>${you.engine}</b> in the engine — you'll <b>spin out</b>, drop to 1st gear and pick up Stress.`;
+      const ok = await confirmSpin(body, {tag:"Adrenaline", yes:"Push anyway"});
+      if(!ok || !live(tk)) return;
+    }
+    you.adrSpeedUsed=true; you.speed+=1;
+    const m=moveCar(you,1);
+    log(`Adrenaline: +1 speed${m<1?" (blocked)":""}.`,"me");
+    renderGauges(); playerReact();
+  });
+  $("#donereact").onclick=()=>{ if(!live(tk)) return; you._coolInit=false; playerSlipstream(); };
+}
+
+/* ---- 6. Slipstream */
+function playerSlipstream(){
+  const you=G.players[0];
+  const here=phys(you.total), ahead=phys(you.total+1);
+  const eligible = carsAt(here,you).length>0 || carsAt(ahead,you).length>0;
+  // sector / weather slipstream modifiers (car must be in the sector to benefit)
+  const sec = curSector(you);
+  const wSec = isWeatherSector(sec);
+  const wDef = G.weather ? G.weather.def.sector : {};
+  let bonus = 0, blocked = false, why = [];
+  if(sectorTokOf(sec)==="slip"){ bonus += 1; why.push("road-condition slipstream boost +1"); } // RC Slipstream boost token
+  if(wSec){
+    if(wDef.slip){ bonus += wDef.slip; why.push(`${G.weather.def.name.toLowerCase()} +${wDef.slip}`); } // Sunny +2 / Cloudy +1
+    if(wDef.noSlip){ blocked = true; why.push("mist — no slipstreaming"); }                            // Mist
+    if(wDef.wind){                                                                                     // Strong Wind
+      const cls = windClassAt(sec);
+      if(cls==="head"){ bonus += 2; why.push("headwind +2"); }
+      else if(cls==="tail"){ blocked = true; why.push("tailwind cancels the tow"); }
+    }
+  }
+  const slipDist = 2 + bonus;
+  const wouldFinish = (you.total < G.laps*S) && (you.total+slipDist >= G.laps*S);
+  if(!eligible || blocked || wouldFinish || finishedLine(you)){
+    if(eligible && blocked) log(`Slipstream unavailable here (${why.join(", ")}).`);
+    playerCornerCheck(); return;
+  }
+  /* what slipping would add to the corner bill (speed itself doesn't change) */
+  const newCross = crossingsForMove(you.total, slipDist);
+  const costNow  = cornerHeatCost(you.speed, you.crossings);
+  const costSlip = cornerHeatCost(you.speed, [...you.crossings, ...newCross]);
+  const delta = costSlip - costNow;
+  let slipNote = "";
+  if(bonus) slipNote += `<div class="forecast">Tow boosted to <b>+${slipDist}</b> spaces (${why.join(", ")}).</div>`;
+  if(newCross.length){
+    if(costSlip > you.engine && delta > 0)
+      slipNote += `<div class="forecast spin">Slipstreaming crosses a limit-${newCross.map(limitAt).join(" & ")} corner at speed ${you.speed} — total bill ${costSlip} Heat vs ${you.engine} in the engine: ⚠ SPIN OUT!</div>`;
+    else if(delta > 0)
+      slipNote += `<div class="forecast warn">Slipstreaming crosses a limit-${newCross.map(limitAt).join(" & ")} corner line — adds <b>+${delta} Heat</b> to the check (total ${costSlip}, engine ${you.engine}).</div>`;
+    else
+      slipNote += `<div class="forecast">Slipstreaming crosses a corner line, but speed ${you.speed} is under the limit — free.</div>`;
+  }
+  const panel=$("#panel");
+  panel.innerHTML = `
+    <div class="phase-title">6 · Slipstream</div>
+    <div class="phase-hint">You're in the tow of another car. Take the full ${slipDist} free spaces? It doesn't add speed, but any corner line you cross still gets checked.</div>
+    ${slipNote}
+    <div class="btnrow">
+      <button class="act" id="slipyes">Slipstream +${slipDist}</button>
+      <button class="act secondary" id="slipno">Stay put</button>
+    </div>`;
+  const tk=arm();
+  $("#slipyes").onclick=async ()=>{
+    if(!live(tk)) return;
+    // The tow is deterministic, so we know exactly whether it spins the car out.
+    const willSpin = newCross.length>0 && costSlip > you.engine && delta > 0;
+    if(willSpin){
+      const body = `Taking this tow crosses a limit-${newCross.map(limitAt).join(" & ")} corner at speed ${you.speed}. The check owes <b>${costSlip} Heat</b> but the engine holds only <b>${you.engine}</b> — you'll <b>spin out</b>, drop to 1st gear and pick up Stress.`;
+      const ok = await confirmSpin(body, {tag:"Slipstream", yes:"Slipstream anyway"});
+      if(!ok || !live(tk)) return;
+    }
+    const m=moveCar(you,slipDist);
+    log(m>0?`You slipstream ${m} space${m>1?"s":""}.`:"Slipstream blocked — no move.","me");
+    playerCornerCheck();
+  };
+  $("#slipno").onclick=()=>{ if(live(tk)) playerCornerCheck(); };
+}
+
+/* ---- 7. Check Corner — shared by the player and simulated drivers */
+function runCornerCheck(p){
+  const isYou = !p.isBot;
+  const lines=[...new Set(p.crossings)].sort((a,b)=>a-b);
+  const wDef = G.weather ? G.weather.def.sector : {};
+  for(const ct of lines){
+    const idx = cornerIdxOf(ct);
+
+    /* Aquaplaning (Heavy Rain / Thunderstorm): passing a weather-governed corner
+       approach above speed 10 flips the top card — a Stress card spins you off. */
+    if(wDef.aqua && approachIsWeatherSector(ct) && p.speed>10){
+      const c = draw(p);
+      if(c){
+        const stress = isStress(c);
+        p.discard.push(c);
+        if(stress){ weatherSpinOut(p, ct, p.isBot?`${p.name} AQUAPLANES`:"AQUAPLANE", true); return; }
+        if(isYou) log(`Aquaplaning at speed ${p.speed} — you held it together.`);
+      }
+    }
+
+    /* effective corner speed = card+boost speed, adjusted by wind + a wind-gust flip */
+    let eff = p.speed;
+    if(wDef.wind && approachIsWeatherSector(ct)){
+      const cls = windClassAt(sectorBefore(ct));
+      if(cls==="tail"){ eff+=1; } else if(cls==="head"){ eff-=1; }
+    }
+    if(wDef.gust && cornerBordersWeatherSector(idx)){
+      const c = draw(p);
+      if(c){ if(isSpeed14(c)){ eff += c.v; if(isYou) log(`Wind gust at the corner: +${c.v} to corner speed (now ${eff}).`,"warn"); } p.discard.push(c); }
+    }
+
+    const lim = limitAt(ct);
+    const excess = eff - lim;
+    if(excess<=0){ if(isYou) log(`Corner (limit ${lim}) taken clean at speed ${eff}.`); continue; }
+    const cost = excess + (cornerHasOverheat(ct)?1:0);
+    if(p.engine>=cost){
+      payHeat(p,cost);
+      if(isYou){
+        log(`Corner limit ${lim}, speed ${eff}: engine takes ${cost} Heat${cornerHasOverheat(ct)?" (overheat +1)":""}.`,"warn");
+        toast(`Over the limit · ${cost} Heat`,"hot");
+      } else log(`${p.name} runs the limit-${lim} corner at ${eff} — pays ${cost} Heat.`);
+    }else{
+      const induced = wDef.gust && cornerBordersWeatherSector(idx); // gust-forced over-speed counts toward a red flag
+      weatherSpinOut(p, ct, p.isBot?`${p.name} SPINS OUT`:"SPIN OUT", induced);
+      return;
+    }
+  }
+}
+function playerCornerCheck(){
+  const you=G.players[0];
+  runCornerCheck(you);
+  you.crossings=[];
+  renderGauges();
+  if(G.weather && G.weather.aborted){ raceOver(); return; }
+  playerDiscard();
+}
+
+/* shared spin-out: dump engine heat, drop back before the corner, take Stress,
+   reset to 1st gear. `induced` marks weather-caused spins for the storm red flag. */
+function weatherSpinOut(p, cornerTotal, tag, induced){
+  const paid=p.engine;
+  p.discard.push(...Array(paid).fill().map(()=>makeCard("heat")));
+  p.engine=0;
+  let t=cornerTotal-1; while(spaceFull(phys(t),p)) t--;
+  p.total=t; takeSpot(p); renderCars();
+  const extra = p.gear<=2?1:2;
+  for(let i=0;i<extra;i++) p.hand.push(makeCard("stress"));
+  p.gear=1; p.spunOut=true;
+  auditHeat(p,"spin out");
+  log(`${tag} before the limit-${limitAt(cornerTotal)} corner! ${paid} Heat gone, ${extra} Stress in hand, back to 1st gear.`,"warn");
+  if(!p.isBot) toast(tag+"!","hot");
+  registerWeatherSpin(!!induced);
+}
+
+/* ---- 8. Discard */
+function playerDiscard(){
+  const you=G.players[0];
+  const options = you.hand.filter(discardable);
+  if(options.length===0){ playerReplenish(); return; }
+  const sel=new Set();
+  const panel=$("#panel");
+  panel.innerHTML = `
+    <div class="phase-title">8 · Discard <span style="color:var(--cream-dim)">(optional)</span></div>
+    <div class="phase-hint">Bin cards you don't want next round — you'll draw back to 7. Heat and Stress can't be discarded.</div>
+    <div id="hand"></div>
+    <div class="btnrow">
+      <button class="act secondary" id="skipdisc">Keep hand</button>
+      <button class="act" id="dodisc" disabled>Discard selected</button>
+    </div>`;
+  const handEl=$("#hand");
+  you.hand.forEach(c=>{
+    const el=renderCard(c);
+    if(!discardable(c)) el.classList.add("dim");
+    else el.onclick=()=>{ sel.has(c.id)?sel.delete(c.id):sel.add(c.id);
+      el.classList.toggle("sel",sel.has(c.id)); $("#dodisc").disabled=sel.size===0; };
+    handEl.appendChild(el);
+  });
+  const tk=arm();
+  $("#skipdisc").onclick=()=>{ if(live(tk)) playerReplenish(); };
+  $("#dodisc").onclick=()=>{
+    if(!live(tk)) return;
+    const going=you.hand.filter(c=>sel.has(c.id));
+    you.hand=you.hand.filter(c=>!sel.has(c.id));
+    you.discard.push(...going);
+    log(`You discard ${going.length} card${going.length>1?"s":""}.`,"me");
+    playerReplenish();
+  };
+}
+
+/* ---- 9. Replenish */
+function playerReplenish(){
+  const you=G.players[0];
+  you.discard.push(...you.play); you.play=[];
+  drawToHand(you, 7-you.hand.length);
+  renderGauges();
+  checkFinish(you);
+  nextInQueue();
+}
+
+/* ---------------- Legend (bot) turns — Legends module logic */
+async function botTurn(p){
+  if(!G.legendRevealed){
+    G.legendRevealed=true;
+    if(G.legendDeck.length===0) G.legendDeck=shuffle([...LEGEND_CARDS]);
+    const c=G.legendDeck.pop();
+    G.legendCard={ts:c.ts+G.difficulty, d:c.d};
+    log(`Legend card: top speed ${G.legendCard.ts}, diamond ${G.legendCard.d}.`);
+  }
+  const {ts,d}=G.legendCard;
+  const nc=nextCornerTotal(p.total);
+  let move, why;
+  if(nc===Infinity){ move=ts; why="flat out to the flag"; }
+  else if(nc - p.total <= TRACK.legendsLine){
+    // clearing the corner
+    move = limitAt(nc)+d; why=`clears the corner (${limitAt(nc)}+${d})`;
+    const nc2=nextCornerTotal(nc);
+    if(p.total+move >= nc2) move = nc2 - 1 - p.total; // never 2 corners in one move
+  }else if(p.total+ts < nc){ move=ts; why=`runs top speed ${ts}`; }
+  else { move = (nc-1-d) - p.total; why=`brakes to ${d} before the corner`; }
+  const startTotal=p.total;
+  if(move>0){
+    const m=moveCar(p,move,{trackCrossings:false});
+    log(`${p.name} ${why} → ${m} space${m===1?"":"s"}${m<move?" (blocked)":""}.`);
+    botWeatherCheck(p, startTotal, m);
+  }else log(`${p.name} holds position.`);
+  checkFinish(p);
+  await wait(650);
+}
+
+/* ============================================================
+   SIMULATED DRIVERS — rivals that play a full human-style round
+   (own deck, hand, engine & gears) instead of the Legends deck.
+   Skill comes from SIM_PROFILES: gear choice, card choice, boost,
+   cooldown, slipstream and how much corner risk they'll accept.
+   ============================================================ */
+async function simBotTurn(p){
+  const prof = simProfile();
+  // reset per-round scratch
+  p.speed=0; p.crossings=[]; p.boostUsed=false; p.adrenaline=false;
+  p.adrSpeedUsed=false; p.cluttered=false; p.spunOut=false; p.play=[];
+
+  simShift(p, prof);                                  // 1. shift gears
+
+  // 2. play cards
+  const playableN = p.hand.filter(c=>!isHeat(c)).length;
+  if(playableN < p.gear){
+    // cluttered: dump what we can, cover with Heat, don't move, drop to 1st
+    p.cluttered=true;
+    const down = p.hand.filter(c=>!isHeat(c));
+    let need = p.gear - down.length;
+    for(const c of p.hand){ if(need>0 && isHeat(c)){ down.push(c); need--; } }
+    p.play = down; p.hand = p.hand.filter(c=>!down.includes(c));
+    p.gear = 1;
+    log(`${p.name} has a cluttered hand — coasts this round, drops to 1st.`);
+    p.discard.push(...p.play); p.play=[];
+    drawToHand(p, 7-p.hand.length);
+    checkFinish(p); renderCars(); renderGauges();
+    await wait(botDelay()); return;
+  }
+  const chosen = simChooseCards(p, prof);
+  p.play = chosen;
+  p.hand = p.hand.filter(c=>!chosen.includes(c));
+
+  // 3. reveal & move (resolve stress ＋ first)
+  for(const c of p.play){
+    if(isStress(c)){
+      const r = flipForSpeed(p); c.resolved=r.v;
+      if(r.card) p.play.push(Object.assign(r.card,{fromStress:true}));
+    }
+  }
+  const cardSpeed = p.play.reduce((s,c)=> c.t==="speed"? s+c.v : c.t==="up5"? s+5 : s, 0);
+  p.speed = cardSpeed;
+  const moved = moveCar(p, cardSpeed);
+  log(`${p.name} · gear ${p.gear} · speed ${cardSpeed}${moved<cardSpeed?` (blocked at ${moved})`:""}.`);
+  if(G.adrenalineIds.includes(p.id)) p.adrenaline=true;
+  renderGauges();
+  await wait(botDelay());
+
+  simReact(p, prof);        // 5. cooldown (top up the engine) → boost → adrenaline
+  simSlip(p, prof);         // 6. slipstream if it helps and is safe
+  runCornerCheck(p);        // 7. corner check (may spin out)
+  p.crossings=[];
+  if(!(G.weather && G.weather.aborted)) simDiscard(p, prof);   // 8. light hand cycling
+
+  // 9. replenish
+  p.discard.push(...p.play); p.play=[];
+  drawToHand(p, 7-p.hand.length);
+  checkFinish(p);
+  renderCars(); renderGauges();
+  await wait(botDelay());
+}
+
+/* 1 · gear: match gear to the distance to the next corner, tempered by profile */
+function simShift(p, prof){
+  const nc = nextCornerTotal(p.total);
+  const dc = nc===Infinity ? 99 : nc - p.total;
+  const lim = nc===Infinity ? 99 : limitAt(nc);
+  let want;
+  if(dc>12) want=4;
+  else if(dc>8) want=3;
+  else if(dc>4) want=(lim>=5?3:2);
+  else if(dc>2) want=2;
+  else want=1;
+  if(prof.upshiftBias>=0.7 && want<4 && dc>3) want++;          // brave drivers carry a taller gear
+  if(prof.cornerMargin>=1 && want>1 && dc<=6) want--;          // cautious drivers gear down early
+  want = Math.max(1, Math.min(4, want));
+  // reachable this shift: ±1 free, ±2 costs 1 Heat
+  let g = want, diff = want - p.gear;
+  if(Math.abs(diff)>2) g = p.gear + Math.sign(diff)*2;
+  // rookies avoid paying Heat for a 2-gear jump unless braking hard into a corner
+  if(Math.abs(g-p.gear)===2 && prof.aggression<0.4 && dc>2) g = p.gear + Math.sign(g-p.gear);
+  let cost = shiftHeatCost(p.gear, g, weatherShiftPenaltyHere(p));
+  if(cost>p.engine){ g = p.gear + Math.sign(g-p.gear); cost = shiftHeatCost(p.gear,g,weatherShiftPenaltyHere(p)); }
+  // don't gear into a certain clutter if a lower gear is playable
+  const playable = p.hand.filter(c=>!isHeat(c)).length;
+  if(g>playable && playable>=1){ g=Math.min(g,playable); cost=shiftHeatCost(p.gear,g,weatherShiftPenaltyHere(p)); }
+  if(cost>0 && cost<=p.engine){ payHeat(p,cost); }
+  p.gear = Math.max(1, Math.min(4, g));
+}
+
+/* 2 · cards: pick exactly `gear` non-Heat cards that best fit the situation */
+function simChooseCards(p, prof){
+  const playable = p.hand.filter(c=>!isHeat(c));
+  const g = p.gear;
+  const nc = nextCornerTotal(p.total);
+  const lim = nc===Infinity ? 99 : limitAt(nc);
+  const val = c => c.t==="speed" ? c.v : c.t==="up5" ? 5 : isStress(c) ? 2.5 : 0; // stress ≈ expected flip
+  const combos = kcombos(playable, g);
+  let best=null, bestScore=-1e9;
+  for(const combo of combos){
+    const sum = combo.reduce((s,c)=>s+val(c),0);
+    const stressN = combo.filter(isStress).length;
+    let score;
+    const crosses = nc!==Infinity && (p.total + Math.round(sum) >= nc);
+    if(crosses){
+      const excess = Math.max(0, Math.round(sum) - lim);
+      const heatCost = excess>0 ? excess + (cornerHasOverheat(nc)?1:0) : 0;
+      const reserve = p.engine - prof.heatFloor;
+      const leftover = p.engine - heatCost;             // engine after paying this corner
+      if(heatCost > p.engine)              score = -100 - heatCost;                       // would spin: avoid
+      else if(heatCost > Math.max(0,reserve)) score = sum - heatCost*3 - (prof.riskTolerance<1?18:4);
+      else                                 score = sum - heatCost*(2-prof.aggression);
+      score -= Math.max(0, prof.heatFloor - leftover)*3;// keep Heat banked for the corner after this one
+      score -= stressN*(2*(1-prof.aggression)+1);      // random stress into a braking zone is scary
+    } else {
+      score = sum + stressN*0.6;                        // straight: run hard, happily shed stress
+    }
+    score += sum*prof.aggression*0.3;                   // overall push
+    if(score>bestScore){ bestScore=score; best=combo; }
+  }
+  return best || playable.slice(0,g);
+}
+
+/* 5 · react: cool down to refill the engine before the corner, then maybe boost / adrenaline */
+function simReact(p, prof){
+  const sec = curSector(p), wSec = isWeatherSector(sec);
+  const wDef = G.weather ? G.weather.def.sector : {};
+  const noCool   = wSec && !!wDef.noCool;
+  const coolBonus= (wSec && wDef.cool) ? wDef.cool : 0;
+  const heatCtrl = sectorTokOf(sec)==="heatctrl";
+  let cool = (p.gear===1?3 : p.gear===2?1 : 0) + coolBonus + (p.adrenaline?1:0);
+  if(noCool) cool=0;
+  while(cool>0 && p.engine<heatCap()){                  // top the engine up (heat pays corners in step 7)
+    const idx = p.hand.findIndex(isHeat); if(idx<0) break;
+    p.hand.splice(idx,1); p.engine++; cool--; auditHeat(p,"bot cooldown");
+  }
+  // boost
+  if(!p.boostUsed && Math.random()<prof.boostChance){
+    const nc = nextCornerTotal(p.total);
+    // "straight" = far enough that a boost's extra speed won't fling us into the next corner
+    const straight = nc===Infinity || (nc-p.total)>4;
+    const canPay = heatCtrl || p.engine>prof.heatFloor+1;   // keep a reserve for the corner check
+    if(canPay && straight){
+      if(!heatCtrl) payHeat(p,1);
+      p.boostUsed=true;
+      const r=flipForSpeed(p); if(r.card) p.discard.push(r.card);
+      p.speed+=r.v; const m=moveCar(p,r.v);
+      log(`${p.name} boosts +${r.v}${m<r.v?" (blocked)":""}.`);
+    }
+  }
+  // adrenaline extra space — skip if it would push over a corner it can't pay for
+  if(p.adrenaline && !p.adrSpeedUsed){
+    const nc = nextCornerTotal(p.total);
+    const crossBad = nc!==Infinity && (p.total+1>=nc) && ((p.speed+1) - limitAt(nc)) > p.engine;
+    if(!crossBad){ p.adrSpeedUsed=true; p.speed+=1; moveCar(p,1); }
+  }
+  renderGauges();
+}
+
+/* 6 · slipstream when eligible and it won't cause an unaffordable corner */
+function simSlip(p, prof){
+  const here=phys(p.total), ahead=phys(p.total+1);
+  const eligible = carsAt(here,p).length>0 || carsAt(ahead,p).length>0;
+  if(!eligible) return;
+  const sec=curSector(p), wSec=isWeatherSector(sec), wDef=G.weather?G.weather.def.sector:{};
+  let bonus=0, blocked=false;
+  if(sectorTokOf(sec)==="slip") bonus+=1;
+  if(wSec){
+    if(wDef.slip) bonus+=wDef.slip;
+    if(wDef.noSlip) blocked=true;
+    if(wDef.wind){ const cls=windClassAt(sec); if(cls==="head") bonus+=2; else if(cls==="tail") blocked=true; }
+  }
+  if(blocked) return;
+  const dist=2+bonus;
+  const wouldFinish=(p.total<G.laps*S)&&(p.total+dist>=G.laps*S);
+  if(wouldFinish||finishedLine(p)) return;              // can't slip across / after the flag
+  const newCross=crossingsForMove(p.total,dist);
+  const addCost=cornerHeatCost(p.speed,[...p.crossings,...newCross]) - cornerHeatCost(p.speed,p.crossings);
+  if(addCost>p.engine && prof.riskTolerance<2) return;  // would risk a spin — decline
+  const m=moveCar(p,dist);
+  if(m>0) log(`${p.name} slipstreams ${m} space${m>1?"s":""}.`);
+}
+
+/* 8 · discard: light cycling — bin a dead 0-upgrade, and (if aggressive) a spare 1 */
+function simDiscard(p, prof){
+  const opts=p.hand.filter(discardable);
+  if(!opts.length) return;
+  const toGo=[];
+  for(const c of opts) if(c.t==="up0") toGo.push(c);
+  if(prof.aggression>0.6){
+    const ones=opts.filter(c=>c.t==="speed"&&c.v===1&&!toGo.includes(c));
+    if(ones.length>1) toGo.push(ones[0]);
+  }
+  if(!toGo.length) return;
+  p.hand=p.hand.filter(c=>!toGo.includes(c));
+  p.discard.push(...toGo);
+}
+
+/* player finished earlier: keep simulating bot rounds till race complete */
+async function runBotsOnly(){
+  waitingPanel("You're home — the remaining rivals race to the flag.");
+  const racers=G.players.filter(p=>!p.finished);
+  if(racers.length===0){ raceOver(); return; }
+  racers.sort((a,b)=>b.total-a.total||a.spot-b.spot);
+  G.legendRevealed=false;
+  for(const p of racers){ pointTurn(p); await (p.sim ? simBotTurn(p) : botTurn(p)); }
+  endRound();
+}
+
+/* ---------------- round end / finish */
+function checkFinish(p){
+  if(!p.finished && finishedLine(p)){
+    p.finished=true; p.finishRound=G.round;
+    G.finishOrder.push(p);
+    log(`${p.isBot?p.name:"YOU"} take${p.isBot?"s":""} the chequered flag!`, p.isBot?"":"me");
+    if(!p.isBot) toast("🏁 Chequered flag!");
+    renderCars();
+  }
+}
+function endRound(){
+  renderStandings();
+  const stillRacing=G.players.filter(p=>!p.finished);
+  if(stillRacing.length===0){ raceOver(); return; }
+  if(G.players[0].finished){
+    // player is home — let the remaining rivals race to the flag
+    setTimeout(()=>{ G.round++; $("#roundlbl").textContent=`Round ${G.round}`; runBotsOnly(); }, 500);
+    return;
+  }
+  startRound();
+}
+function raceOver(){
+  const order=[...G.finishOrder, ...G.players.filter(p=>!p.finished).sort((a,b)=>b.total-a.total)];
+  const rows=order.map((p,i)=>`
+    <div class="standrow"><div class="p">P${i+1}</div>
+      <div class="dot" style="background:${p.color}"></div>
+      <div>${p.isBot?p.name:"No. 17 — You"}</div>
+      <div style="margin-left:auto;color:var(--cream-dim);font-size:12px">${p.finishRound?("R"+p.finishRound):"DNF"}</div>
+    </div>`).join("");
+  const youP = order.indexOf(G.players[0])+1;
+  const el=$("#setup"); el.style.display="flex";
+  el.innerHTML=`<div class="sheet">
+    <h2>${youP===1?"🏆 Victory!":"Race over"}</h2>
+    <div class="tag">${TRACK.name} · ${G.laps} lap${G.laps>1?"s":""} · you finished P${youP}</div>
+    ${rows}
+    <div class="btnrow" style="margin-top:18px"><button class="act" onclick="location.reload()">Race again</button></div>
+  </div>`;
+}
+
+/* ---------------- heat helper */
+function payHeat(p,n){
+  const pay=Math.min(n,p.engine);
+  p.engine-=pay;
+  for(let i=0;i<pay;i++) p.discard.push(makeCard("heat"));
+  auditHeat(p,"pay heat");
+  renderGauges();
+  return pay;
+}
+
+/* ---------------- rendering: cards, gauges, standings */
+function renderCard(c){
+  const d=cardLabel(c);
+  const el=document.createElement("div");
+  el.className="card "+d.cls;
+  // Cards stay clean: no "→ drew N" on stress cards, no "from stress" on the drawn speed card.
+  el.innerHTML=`<div class="cv">${d.cv}</div><div class="ct">${d.ct}</div>`;
+  return el;
+}
+function engineBarHTML(p){
+  let pips="";
+  for(let i=0;i<heatCap();i++) pips+=`<div class="hpip ${i<p.engine?"":"empty"}"></div>`;
+  return `<div id="enginebar"><span class="elbl">Engine</span>${pips}<span class="elbl" style="margin-left:6px">${p.engine} in engine · pool ${totalHeat(p)}/${heatCap()}</span></div>`;
+}
+function renderGauges(){
+  const you=G.players[0];
+  $("#g-gear").textContent=you.gear;
+  $("#g-heat").textContent=you.engine;
+  $("#g-speed").textContent=you.speed||"–";
+  $("#g-hand").textContent=you.hand.length;
+  const order=[...G.players].sort((a,b)=>{
+    if(a.finished&&b.finished) return G.finishOrder.indexOf(a)-G.finishOrder.indexOf(b);
+    if(a.finished)return -1; if(b.finished)return 1;
+    return b.total-a.total||a.spot-b.spot;
+  });
+  $("#g-pos").textContent="P"+(order.indexOf(you)+1);
+  const lap=Math.min(G.laps, Math.floor(Math.max(you.total,0)/S)+1);
+  $("#lapflag").textContent = you.finished? "🏁 Finished" : `Lap ${lap} / ${G.laps} · Round ${Math.max(G.round,1)}`;
+  renderStandings(order);
+}
+function renderStandings(order){
+  order = order || [...G.players].sort((a,b)=>{
+    if(a.finished&&b.finished) return G.finishOrder.indexOf(a)-G.finishOrder.indexOf(b);
+    if(a.finished)return -1; if(b.finished)return 1;
+    return b.total-a.total||a.spot-b.spot;});
+  $("#standings").innerHTML = order.map((p,i)=>`<div class="pos-chip" style="background:${p.color}" title="${p.name}">${i+1}</div>`).join("");
+}
+
+/* ---------------- track drawing */
+let PTS=[];          // per-space {x,y,nx,ny} (n = unit normal toward racing line)
+let carLayer, ptrEl, hlLayer, rcLayer, SPACING=12;
+
+/* ----- landing highlights (card-selection preview) */
+function clearHighlights(){ if(hlLayer) hlLayer.innerHTML=""; }
+/* items: [{total, kind:"exact"|"range"}] — kind sets colour/intensity */
+function highlightSpaces(items){
+  clearHighlights();
+  if(!hlLayer) return;
+  const NS="http://www.w3.org/2000/svg";
+  const half=Math.max(3, SPACING/2 - 1.2);
+  for(const it of items){
+    const p=PTS[phys(it.total)];
+    const ln=document.createElementNS(NS,"line");
+    ln.setAttribute("x1",p.x-p.tx*half); ln.setAttribute("y1",p.y-p.ty*half);
+    ln.setAttribute("x2",p.x+p.tx*half); ln.setAttribute("y2",p.y+p.ty*half);
+    ln.setAttribute("stroke", it.kind==="exact" ? "#a985ff" : "#d8c23a");
+    ln.setAttribute("stroke-width","36");
+    ln.setAttribute("class","landhl "+it.kind);
+    hlLayer.appendChild(ln);
+  }
+}
+function buildTrack(){
+  const svg=$("#tracksvg");
+  const NS="http://www.w3.org/2000/svg";
+  svg.innerHTML="";
+  // per-space geometry from the traced board points (tangents/normals from neighbours)
+  const P = TRACK.spacePts;
+  PTS=[]; let total=0;
+  for(let i=0;i<S;i++){
+    const a=P[(i-1+S)%S], b=P[i], c=P[(i+1)%S];
+    const dx=c[0]-a[0], dy=c[1]-a[1], len=Math.hypot(dx,dy)||1;
+    PTS.push({x:b[0], y:b[1], tx:dx/len, ty:dy/len, nx:dy/len, ny:-dx/len});
+    total += Math.hypot(c[0]-b[0], c[1]-b[1]);
+  }
+  SPACING = total/S;
+  // SVG art rendition of the board — always drawn first. If the scanned
+  // board photo loads it simply covers this; if the file is missing the
+  // art board IS the board (no broken-image glyph, fully playable).
+  drawArtBoard(svg);
+  rcLayer=document.createElementNS(NS,"g");   // road-condition / weather-sector overlay
+  svg.appendChild(rcLayer);
+  hlLayer=document.createElementNS(NS,"g");   // landing previews sit under the cars
+  svg.appendChild(hlLayer);
+  // pointer for whose turn
+  ptrEl=document.createElementNS(NS,"path");
+  ptrEl.setAttribute("d","M0,-8 L6,4 L-6,4 Z"); ptrEl.setAttribute("fill","#ffd166");
+  ptrEl.setAttribute("id","turnptr"); ptrEl.style.opacity="0";
+  svg.appendChild(ptrEl);
+  carLayer=document.createElementNS(NS,"g");
+  svg.appendChild(carLayer);
+  // try the board photo; only attach it if it genuinely loads
+  const probe=new Image();
+  probe.onload=()=>{
+    const img=document.createElementNS(NS,"image");
+    img.setAttribute("href",TRACK.image);
+    img.setAttribute("x",0); img.setAttribute("y",0);
+    img.setAttribute("width",TRACK.imgW); img.setAttribute("height",TRACK.imgH);
+    img.setAttribute("preserveAspectRatio","xMidYMid slice");
+    // photo covers the art board, but must sit UNDER the road-condition / weather
+    // overlay (rcLayer), highlights and cars — otherwise it hides the weather
+    // sector bands & tokens. Insert before rcLayer so rcLayer paints on top.
+    svg.insertBefore(img, rcLayer);
+  };
+  probe.src=TRACK.image;
+}
+
+/* ---------------- SVG art board (fallback when the photo is missing) */
+function drawArtBoard(svg){
+  const NS="http://www.w3.org/2000/svg";
+  const P=TRACK.spacePts;
+  const g=document.createElementNS(NS,"g");
+  g.setAttribute("id","artboard");
+  const el=(n,at)=>{ const e=document.createElementNS(NS,n); for(const k in at) e.setAttribute(k,at[k]); return e; };
+  const bnd=i=>{  // boundary geometry before space i: midpoint, tangent, normal
+    const a=P[((i-1)%S+S)%S], b=P[((i)%S+S)%S];
+    const dx=b[0]-a[0], dy=b[1]-a[1], L=Math.hypot(dx,dy)||1;
+    return {x:(a[0]+b[0])/2, y:(a[1]+b[1])/2, tx:dx/L, ty:dy/L, nx:dy/L, ny:-dx/L};
+  };
+  // countryside base + deterministic field patches for a satellite feel
+  g.appendChild(el("rect",{x:0,y:0,width:TRACK.imgW,height:TRACK.imgH,fill:"#57713f"}));
+  let seed=1234567; const rnd=()=> (seed=(seed*16807)%2147483647)/2147483647;
+  const fieldCols=["#4c6636","#5f7a45","#66854a","#43592f","#6f8b52"];
+  for(let i=0;i<26;i++){
+    const x=rnd()*TRACK.imgW, y=rnd()*TRACK.imgH, rx=60+rnd()*140, ry=40+rnd()*90;
+    g.appendChild(el("ellipse",{cx:x,cy:y,rx,ry,fill:fieldCols[i%5],opacity:.5,
+      transform:`rotate(${(rnd()*180).toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})`}));
+  }
+  // mowed infield rings (the old horse-racing oval inside Pukekohe)
+  g.appendChild(el("ellipse",{cx:560,cy:330,rx:340,ry:175,fill:"#3f5531",opacity:.85}));
+  g.appendChild(el("ellipse",{cx:560,cy:330,rx:255,ry:120,fill:"#54703d",opacity:.9}));
+  const d="M "+P.map(p=>p[0]+" "+p[1]).join(" L ")+" Z";
+  // verge shadow → cream verge → red/white kerbs at corners → tarmac → centreline
+  g.appendChild(el("path",{d,fill:"none",stroke:"#2b241f","stroke-width":58,"stroke-linejoin":"round",opacity:.3}));
+  g.appendChild(el("path",{d,fill:"none",stroke:"#e8e0cc","stroke-width":50,"stroke-linejoin":"round"}));
+  for(const c of TRACK.corners){
+    const seg=[]; for(let j=-3;j<=2;j++) seg.push(P[((c.at+j)%S+S)%S]);
+    g.appendChild(el("path",{d:"M "+seg.map(p=>p[0]+" "+p[1]).join(" L "),fill:"none",
+      stroke:"#c8402e","stroke-width":52,"stroke-dasharray":"9 11","stroke-linecap":"butt"}));
+  }
+  g.appendChild(el("path",{d,fill:"none",stroke:"#241f28","stroke-width":44,"stroke-linejoin":"round"}));
+  g.appendChild(el("path",{d,fill:"none",stroke:"#cfc7b4","stroke-width":1.6,"stroke-dasharray":"12 14",opacity:.65}));
+  // space separators
+  for(let i=0;i<S;i++){
+    const b=bnd(i+1);
+    g.appendChild(el("line",{x1:b.x-b.nx*21,y1:b.y-b.ny*21,x2:b.x+b.nx*21,y2:b.y+b.ny*21,
+      stroke:"#57505f","stroke-width":1.4}));
+  }
+  // corner lines + speed-limit badges
+  for(const c of TRACK.corners){
+    const b=bnd(c.at);
+    g.appendChild(el("line",{x1:b.x-b.nx*25,y1:b.y-b.ny*25,x2:b.x+b.nx*25,y2:b.y+b.ny*25,
+      stroke:"#ffb03d","stroke-width":4}));
+    const bx=b.x-b.nx*48, by=b.y-b.ny*48;
+    const badge=el("g",{class:"cornerbadge"});
+    badge.appendChild(el("circle",{cx:bx,cy:by,r:16}));
+    const t=el("text",{x:bx,y:by+6,"font-size":"18"}); t.textContent=c.limit;
+    badge.appendChild(t);
+    g.appendChild(badge);
+  }
+  // finish line: two offset checker rows on the boundary before space 0
+  {
+    const b=bnd(0);
+    for(const off of [-2.5,2.5]){
+      const x1=b.x-b.nx*22+b.tx*off, y1=b.y-b.ny*22+b.ty*off;
+      const x2=b.x+b.nx*22+b.tx*off, y2=b.y+b.ny*22+b.ty*off;
+      g.appendChild(el("line",{x1,y1,x2,y2,stroke:"#f4f1e8","stroke-width":5}));
+      g.appendChild(el("line",{x1,y1,x2,y2,stroke:"#141414","stroke-width":5,
+        "stroke-dasharray":"5 5","stroke-dashoffset":off>0?5:0}));
+    }
+  }
+  // event plate, bottom-right
+  const rot='rotate(-2 1025 712)';
+  g.appendChild(el("rect",{x:875,y:655,width:300,height:115,rx:6,fill:"#efe6d0",
+    stroke:"#b23227","stroke-width":6,transform:rot}));
+  const t1=el("text",{x:1025,y:697,"text-anchor":"middle","font-size":"21","font-weight":"800",
+    fill:"#173a2a","letter-spacing":"3",transform:rot});
+  t1.textContent="NEW ZEALAND GRAND PRIX";
+  const t2=el("text",{x:1025,y:742,"text-anchor":"middle","font-size":"40","font-weight":"800",
+    fill:"#0f5132","letter-spacing":"4",transform:rot});
+  t2.textContent="PUKEKOHE";
+  g.append(t1,t2);
+  svg.appendChild(g);
+}
+function spotXY(total,spot){
+  const p=PTS[phys(total)];
+  const off = spot===0? -9 : 9; // racing line = inner printed lane
+  return {x:p.x+p.nx*off, y:p.y+p.ny*off};
+}
+function renderCars(){
+  const NS="http://www.w3.org/2000/svg";
+  for(const p of G.players){
+    let g=document.getElementById("car-"+p.id);
+    if(!g){
+      g=document.createElementNS(NS,"g"); g.setAttribute("id","car-"+p.id); g.setAttribute("class","car");
+      const body=document.createElementNS(NS,"circle");
+      body.setAttribute("r", p.isBot?9:10.5); body.setAttribute("fill",p.color);
+      body.setAttribute("stroke", p.isBot?"#111":"#fff"); body.setAttribute("stroke-width", p.isBot?1.5:2.2);
+      const num=document.createElementNS(NS,"text");
+      num.setAttribute("text-anchor","middle"); num.setAttribute("y","3.6");
+      num.setAttribute("font-size","9"); num.setAttribute("font-weight","800");
+      num.setAttribute("fill", p.isBot?"#111":"#fff");
+      num.textContent = p.isBot? p.name.match(/\d+/)[0] : "17";
+      g.append(body,num); carLayer.appendChild(g);
+    }
+    if(p.finished){ g.style.opacity="0"; continue; }
+    const {x,y}=spotXY(p.total,p.spot);
+    g.setAttribute("transform",`translate(${x},${y})`);
+  }
+}
+function pointTurn(p){
+  if(!ptrEl) return;
+  if(p.finished){ ptrEl.style.opacity="0"; return; }
+  const {x,y}=spotXY(p.total,p.spot);
+  ptrEl.style.opacity="1";
+  ptrEl.setAttribute("transform",`translate(${x},${y-18})`);
+}
+
+/* ============================================================
+   WEATHER & ROAD CONDITIONS MODULE  (advanced rules)
+   - Road-condition tokens: one drawn per corner. Corner-type tokens
+     modify that corner; sector-type tokens modify the road AFTER it.
+   - Weather deck uses the "refined weather effects" set: each weather
+     applies a car-setup modifier before the race, may bar certain
+     road-condition token types, and adds an effect on any sector that
+     carries a "Weather" road-condition token.
+   ============================================================ */
+
+/* the 12 road-condition tokens (base module) */
+const RC_POOL = ['lim+1','lim+1','lim-1','lim-1','overheat','overheat',
+                 'slip','slip','heatctrl','heatctrl','weather','weather'];
+const RC_DEF = {
+  'lim+1':   {kind:'corner', name:'Speed Limit +1', short:'+1'},
+  'lim-1':   {kind:'corner', name:'Speed Limit −1', short:'−1'},
+  'overheat':{kind:'corner', name:'Overheat',       short:'🔥'},
+  'slip':    {kind:'sector', name:'Slipstream boost',short:'≫'},
+  'heatctrl':{kind:'sector', name:'Heat control',    short:'H'},
+  'weather': {kind:'sector', name:'Weather',         short:'☁'}
+};
+
+/* refined weather deck.  setup: car-setup applied before the race.
+     heatCap  = heat added(+)/removed(−) from the game (pool size)
+     stress   = stress cards added(+)/removed(−) from the deck
+     engineToDiscard / engineToDeck = reposition heat (pool unchanged)
+   exclude: road-condition token types this weather bars.
+   sector : effect applied on any sector carrying a Weather token. */
+const WEATHER_TYPES = {
+  extreme_heat:{ name:'Extreme Heat', icon:'🌡',
+    setup:{engineToDiscard:3}, exclude:['heatctrl'], sector:{noCool:true},
+    blurb:'3 Heat move engine→discard. Heat-control tokens barred. No cooling on weather sectors.' },
+  sunny:{ name:'Sunny', icon:'🌤',
+    setup:{stress:-1}, sector:{slip:2},
+    blurb:'Remove 1 Stress from your deck. Weather sectors give slipstream +2.' },
+  cloudy:{ name:'Cloudy', icon:'☁',
+    setup:{}, sector:{slip:1},
+    blurb:'No card changes. Weather sectors give slipstream +1.' },
+  cold:{ name:'Cold', icon:'❄',
+    setup:{heatCap:-1}, sector:{cool:1},
+    blurb:'Remove 1 Heat from the engine (out of the game). Weather sectors: +1 cooldown.' },
+  mist:{ name:'Mist', icon:'🌫',
+    setup:{heatCap:1}, exclude:['lim+1'], sector:{noSlip:true},
+    blurb:'Add 1 Heat to the engine. No +1-limit tokens. No slipstreaming FROM weather sectors.' },
+  light_rain:{ name:'Light Rain', icon:'🌦',
+    setup:{engineToDeck:3}, exclude:['lim+1','slip'], sector:{cool:1},
+    blurb:'Move 3 Heat engine→draw deck. No +1-limit / slipstream tokens. Weather sectors: +1 cooldown.' },
+  heavy_rain:{ name:'Heavy Rain', icon:'🌧',
+    setup:{stress:1}, exclude:['lim+1','slip'], sector:{aqua:true},
+    blurb:'Add 1 Stress. No +1-limit / slipstream tokens. Aquaplaning on weather sectors: over speed 10 into a corner, flip — a Stress card spins you out.' },
+  strong_wind:{ name:'Strong Wind', icon:'🎐',
+    setup:{engineToDeck:3}, sector:{wind:true},
+    blurb:'Move 3 Heat engine→draw deck. Weather sectors carry a head- or tail-wind (±1 corner speed, alters the tow) by direction.' },
+  wind_gusts:{ name:'Wind Gusts', icon:'💨',
+    setup:{stress:1}, sector:{gust:true},
+    blurb:'Add 1 Stress. At corners bordering a weather sector, flip a card at the corner check — a Speed card adds to your corner speed.' },
+  low_sun:{ name:'Low Sun', icon:'🌅',
+    setup:{stress:1}, sector:{lowSun:true},
+    blurb:'Add 1 Stress. On weather sectors you must play a Stress card if you hold one (blinded — no brake points).' },
+  wet_asphalt:{ name:'Wet Asphalt', icon:'🌊',
+    setup:{heatCap:1, stress:1}, sector:{wetShift:true},
+    blurb:'Add 1 Heat to the engine + 1 Stress. On weather sectors, shifting DOWN costs +1 Heat per gear.' },
+  thunderstorm:{ name:'Thunderstorm', icon:'🌩',
+    setup:{stress:1}, exclude:['lim+1','slip'], sector:{aqua:true, gust:true, storm:true},
+    blurb:'Add 1 Stress. No +1-limit / slipstream tokens. Weather sectors bring both aquaplaning and wind gusts. Three weather spin-offs red-flag the race.' },
+  none:{ name:'Dry / No Weather', icon:'🏁', setup:{}, sector:{},
+    blurb:'Plain race — no weather or road-condition tokens in play.' }
+};
+
+/* prepare weather state + car-setup pool modifiers (runs BEFORE the car is built) */
+function setupWeather(key){
+  const def = WEATHER_TYPES[key] || WEATHER_TYPES.none;
+  G.weather = { key, def, cornerTok:[], sectorTok:[], sectorOfSpace:[],
+                windClass:null, wind:null, weatherSpins:0, aborted:false };
+  WEATHER_HEAT_MOD   = def.setup.heatCap || 0;
+  WEATHER_STRESS_MOD = def.setup.stress  || 0;
+}
+
+/* car-setup that just repositions Heat cards (pool size already handled above) */
+function applyWeatherCarSetup(you){
+  const s = G.weather.def.setup;
+  if(s.engineToDiscard){
+    const k=Math.min(s.engineToDiscard, you.engine); you.engine-=k;
+    for(let i=0;i<k;i++) you.discard.push(makeCard("heat"));
+  }
+  if(s.engineToDeck){
+    const k=Math.min(s.engineToDeck, you.engine); you.engine-=k;
+    for(let i=0;i<k;i++) you.deck.push(makeCard("heat"));
+    shuffle(you.deck);
+  }
+  auditHeat(you,"weather setup");
+}
+
+/* draw one road-condition token per corner (respecting weather exclusions) */
+function rollRoadConditions(){
+  const def=G.weather.def, n=TRACK.corners.length;
+  G.weather.cornerTok=new Array(n).fill(null);
+  G.weather.sectorTok=new Array(n).fill(null);
+  if(G.weather.key!=='none'){
+    let pool=RC_POOL.filter(t=>!(def.exclude||[]).includes(t));
+    shuffle(pool);
+    for(let i=0;i<n;i++){
+      const tok = pool.length ? pool.pop() : null;
+      if(!tok) continue;
+      if(RC_DEF[tok].kind==='corner') G.weather.cornerTok[i]=tok;
+      else                            G.weather.sectorTok[i]=tok;
+    }
+  }
+  buildSectorMap();       // maps every space to its sector; classifies wind if needed
+  drawRoadConditions();   // paint the overlay
+}
+
+/* each corner "owns" the sector of road from itself up to the next corner */
+function buildSectorMap(){
+  const cs=TRACK.corners, n=cs.length;
+  const map=new Array(S).fill(-1);
+  for(let i=0;i<n;i++){
+    const a=cs[i].at, b=cs[(i+1)%n].at;
+    let sp=a;
+    for(let g=0; g<S; g++){ map[sp]=i; sp=(sp+1)%S; if(sp===b) break; }
+  }
+  for(let sp=0;sp<S;sp++) if(map[sp]===-1) map[sp]=n-1;   // safety
+  G.weather.sectorOfSpace=map;
+  if(G.weather.def.sector.wind) classifyWind();
+}
+
+/* Strong Wind: a windsock direction (base "up", rotated 90° clockwise per pip
+   on the first legend card's diamond) is compared with each sector's travel
+   direction — aligned = tailwind, opposed = headwind, else sidewind.
+   Digital adaptation of the physical windsock/board orientation. */
+function classifyWind(){
+  const top = G.legendDeck && G.legendDeck.length ? G.legendDeck[G.legendDeck.length-1] : null;
+  const d = ((top?top.d:0)%4+4)%4;
+  const dirs=[[0,-1],[1,0],[0,1],[-1,0]];   // up,right,down,left (image coords, y down)
+  const w=dirs[d]; G.weather.wind=w;
+  const n=TRACK.corners.length;
+  const cls=new Array(n).fill('side');
+  for(let i=0;i<n;i++){
+    let ax=0,ay=0,c=0;
+    for(let sp=0;sp<S;sp++) if(G.weather.sectorOfSpace[sp]===i){ ax+=PTS[sp].tx; ay+=PTS[sp].ty; c++; }
+    if(c){ const L=Math.hypot(ax,ay)||1; ax/=L; ay/=L;
+      const dot=ax*w[0]+ay*w[1];
+      cls[i]= dot>0.5 ? 'tail' : dot<-0.5 ? 'head' : 'side';
+    }
+  }
+  G.weather.windClass=cls;
+}
+
+/* ---- sector lookups ---- */
+function curSector(p){
+  if(!G.weather || !G.weather.sectorOfSpace.length) return -1;
+  return G.weather.sectorOfSpace[phys(p.total)];
+}
+function sectorTokOf(sec){
+  return (sec>=0 && G.weather && G.weather.sectorTok) ? G.weather.sectorTok[sec] : null;
+}
+function isWeatherSector(sec){ return sectorTokOf(sec)==='weather'; }
+function windClassAt(sec){
+  return (G.weather && G.weather.windClass && sec>=0) ? (G.weather.windClass[sec]||'side') : 'side';
+}
+function sectorBefore(cornerTotal){
+  const at=((cornerTotal%S)+S)%S, before=(at-1+S)%S;
+  return G.weather.sectorOfSpace[before];
+}
+function approachIsWeatherSector(cornerTotal){ return isWeatherSector(sectorBefore(cornerTotal)); }
+function cornerBordersWeatherSector(idx){
+  const n=TRACK.corners.length;
+  const after  = G.weather.sectorTok[idx]==='weather';           // sector after this corner
+  const before = G.weather.sectorTok[(idx-1+n)%n]==='weather';   // sector before this corner
+  return after || before;
+}
+
+/* ---- shift-gear cost (Wet Asphalt down-shift penalty folds with the 2-gear cost) ---- */
+function weatherShiftPenaltyHere(p){
+  return isWeatherSector(curSector(p)) && !!(G.weather && G.weather.def.sector.wetShift);
+}
+function shiftHeatCost(fromGear, toGear, wet){
+  const two  = Math.abs(toGear-fromGear)===2 ? 1 : 0;   // normal 2-gear shift = 1 Heat
+  const down = Math.max(0, fromGear-toGear);
+  return (wet && down>0) ? Math.max(two, down) : two;   // down1 wet=1, down2 wet=2
+}
+
+/* ---- thunderstorm red flag: three weather-induced spin-offs stop the race ---- */
+function registerWeatherSpin(induced){
+  if(!induced || !G.weather || !G.weather.def.sector.storm) return;
+  G.weather.weatherSpins++;
+  if(G.weather.weatherSpins>=3 && !G.weather.aborted){
+    G.weather.aborted=true;
+    log("🚩 RED FLAG — three cars have spun off in the storm. The race is stopped.","warn");
+    toast("🚩 RED FLAG",true);
+  }
+}
+
+/* ---- bots: only aquaplaning & wind gusts touch Legends (they never cool / tow /
+   pay Heat), and in a simplified probabilistic form noted for the player. ---- */
+function botWeatherCheck(p, fromTotal, moveDist){
+  if(!G.weather) return;
+  const wDef=G.weather.def.sector;
+  if(!(wDef.aqua||wDef.gust)) return;
+  for(const ct of cornerTotals()){
+    if(fromTotal < ct && p.total >= ct){
+      const idx=cornerIdxOf(ct);
+      if(wDef.aqua && moveDist>10 && approachIsWeatherSector(ct) && Math.random()<0.20){ botSpin(p,ct,"aquaplanes"); return; }
+      if(wDef.gust && cornerBordersWeatherSector(idx) && Math.random()<0.15){ botSpin(p,ct,"is caught by a gust"); return; }
+    }
+  }
+}
+function botSpin(p, ct, tag){
+  let t=ct-1; while(spaceFull(phys(t),p)) t--;
+  p.total=t; takeSpot(p); renderCars();
+  log(`${p.name} ${tag} and spins off before the corner!`,"warn");
+  registerWeatherSpin(true);
+}
+
+/* ---- UI ---- */
+function updateWeatherNote(){
+  const el=$("#weathernote"); if(!el||!G.weather) return;
+  const w=G.weather.def;
+  const rc = (G.weather.key==='none') ? '' :
+    ` · ${G.weather.cornerTok.filter(Boolean).length+G.weather.sectorTok.filter(Boolean).length} road tokens`;
+  el.textContent = `${w.icon} ${w.name}${rc}`;
+}
+function logWeatherSetup(){
+  const w=G.weather;
+  log(`Weather — ${w.def.name}. ${w.def.blurb}`,"me");
+  if(w.key!=='none'){
+    const parts=[];
+    TRACK.corners.forEach((c,i)=>{
+      if(w.cornerTok[i]) parts.push(`Corner ${i+1}: ${RC_DEF[w.cornerTok[i]].name}`);
+      if(w.sectorTok[i]) parts.push(`Sector after ${i+1}: ${RC_DEF[w.sectorTok[i]].name}`);
+    });
+    if(parts.length) log("Road conditions — "+parts.join(" · "));
+    if(w.def.sector.wind && w.windClass){
+      const names=w.windClass.map((c,i)=> w.sectorTok[i]==='weather'?`S${i+1}:${c}wind`:null).filter(Boolean);
+      if(names.length) log("Wind on weather sectors — "+names.join(", "));
+    }
+  }
+}
+
+/* overlay: tinted bands for sector tokens, offset badges for corner tokens */
+function drawRoadConditions(){
+  if(!rcLayer) return;
+  while(rcLayer.firstChild) rcLayer.removeChild(rcLayer.firstChild);
+  const w=G.weather; if(!w || w.key==='none') return;
+  const NS="http://www.w3.org/2000/svg";
+  const mk=(nn,at)=>{ const e=document.createElementNS(NS,nn); for(const k in at) e.setAttribute(k,at[k]); return e; };
+  const n=TRACK.corners.length;
+  // a token badge with a bright halo so it stays legible on top of the busy
+  // satellite board photo as well as the flat art board.
+  const badge=(cx,cy,r,col,txt,fs)=>{
+    rcLayer.appendChild(mk("circle",{cx, cy, r:r+2.5, fill:"#f5efe0", opacity:.95})); // halo
+    rcLayer.appendChild(mk("circle",{cx, cy, r, fill:col, opacity:1, stroke:"#12100c", "stroke-width":2}));
+    const t=mk("text",{x:cx, y:cy+fs*0.34, "text-anchor":"middle", "font-size":fs, "font-weight":"800", fill:"#12100c"});
+    t.textContent=txt; rcLayer.appendChild(t);
+  };
+  // sector tokens (bands)
+  for(let i=0;i<n;i++){
+    const tok=w.sectorTok[i]; if(!tok) continue;
+    const pts=[]; for(let sp=0;sp<S;sp++) if(w.sectorOfSpace[sp]===i) pts.push(PTS[sp]);
+    if(!pts.length) continue;
+    const col = tok==='weather' ? '#3fa7d6' : tok==='slip' ? '#6fce6f' : '#e3c34a';
+    const d = "M "+pts.map(p=>p.x.toFixed(1)+" "+p.y.toFixed(1)).join(" L ");
+    // dark under-stroke widens the band's edge for contrast, then the colour on top
+    rcLayer.appendChild(mk("path",{d, fill:"none", stroke:"#12100c", "stroke-width":40,
+      opacity:.28, "stroke-linecap":"round", "stroke-linejoin":"round"}));
+    rcLayer.appendChild(mk("path",{d, fill:"none", stroke:col, "stroke-width":34,
+      opacity:.42, "stroke-linecap":"round", "stroke-linejoin":"round"}));
+    const mid=pts[Math.floor(pts.length/2)];
+    badge(mid.x, mid.y, 10, col, RC_DEF[tok].short, 11);
+  }
+  // corner tokens (badges offset to the outside of the racing line)
+  for(let i=0;i<n;i++){
+    const tok=w.cornerTok[i]; if(!tok) continue;
+    const p=PTS[TRACK.corners[i].at];
+    const cx=p.x - p.nx*46, cy=p.y - p.ny*46;
+    const col = tok==='overheat' ? '#e3492b' : tok==='lim+1' ? '#6fce6f' : '#e3c34a';
+    badge(cx, cy, 11, col, RC_DEF[tok].short, 13);
+  }
+}
+
+/* ---------------- boot */
+buildTrack();
+renderCars();
+showSetup();
+</script>
+
+<!-- ===== attract music carried over from the title screen ===== -->
+<audio id="heatOpening" src="audio/opening.mp3" loop preload="auto"></audio>
+<audio id="heatStart" src="audio/effects/start.mp3" preload="auto"></audio>
+<script>
+(function(){
+  const opening  = document.getElementById("heatOpening");
+  const startsfx = document.getElementById("heatStart");
+  if(!opening) return;
+
+  /* Pick up opening.mp3 where the title screen left off (falls back to 0
+     if this page was opened directly), and keep it looping. */
+  const saved = parseFloat(sessionStorage.getItem("heat_openingTime"));
+  if(!isNaN(saved) && isFinite(saved)){ try{ opening.currentTime = saved; }catch(e){} }
+  opening.volume = 0.7;
+
+  let musicStopped = false;
+  const tryPlay = () => { if(!musicStopped) opening.play().catch(()=>{}); };
+  tryPlay();
+
+  /* Browsers may block autoplay until a gesture — if so, the first tap
+     anywhere on the selection screen starts the music. */
+  const unlock = () => { tryPlay(); document.removeEventListener("pointerdown", unlock, true); };
+  document.addEventListener("pointerdown", unlock, true);
+
+  function stopOpening(){
+    musicStopped = true;
+    const f = setInterval(() => {
+      opening.volume = Math.max(0, opening.volume - 0.15);
+      if(opening.volume <= 0){ opening.pause(); clearInterval(f); }
+    }, 50);
+    try{ sessionStorage.removeItem("heat_openingTime"); }catch(e){}
+  }
+
+  /* "Start your engine" — stop the music and play the start sting.
+     Capture phase so this runs before the button's own race-start handler. */
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest && e.target.closest("#startbtn");
+    if(!btn) return;
+    stopOpening();
+    if(startsfx){ try{ startsfx.currentTime = 0; startsfx.play().catch(()=>{}); }catch(e){} }
+  }, true);
+})();
+</script>
+</body>
+</html>
