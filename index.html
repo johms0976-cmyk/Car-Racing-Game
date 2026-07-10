@@ -474,7 +474,7 @@ const TRACK_MANFEILD = {
   spacePts:[[587,650],[524,652],[461,654],[398,655],[335,654],[272,653],[209,650],[146,643],[86,625],[45,579],[47,517],[70,459],[118,420],[179,402],[241,405],[294,437],[326,490],[381,521],[442,538],[503,550],[566,556],[628,547],[691,538],[753,531],[816,537],[873,513],[922,474],[971,434],[993,382],[935,369],[877,346],[819,320],[759,303],[698,287],[636,272],[575,259],[513,247],[451,236],[389,227],[326,222],[263,219],[200,211],[139,221],[87,255],[73,200],[125,170],[187,159],[250,151],[313,146],[376,145],[439,146],[502,149],[564,153],[627,158],[690,166],[752,176],[814,187],[876,200],[937,214],[998,231],[1056,254],[1106,292],[1141,344],[1155,405],[1142,466],[1115,524],[1076,572],[1023,606],[963,625],[901,638],[839,646],[776,650],[713,651],[650,650]]
 };
 
-  /* ---------------- Track: Pukekohe (fan board: 73 spaces, 4 corners, 2 laps)
+  /* ---------------- Track: Montjuic (fan board: 73 spaces, 4 corners, 2 laps)
    Geometry traced from the printed board art (tracks/Pukekohe.jpeg, 3:2).
    Space 0 = first space past the finish line; travel heads "west" into the
    infield esses, up the outer edge, along the top and around the right
@@ -488,7 +488,7 @@ const TRACK_MONTJUIC = {
   subtitle:"Barcelona",
   tagline:"Spanish International Grand Prix",
   terrain:"oval",                                   // art-board style: horse-racing infield oval
-  plate:{ x:875, y:655, w:300, h:115, rot:-2, title:"NEW ZEALAND GRAND PRIX", sub:"PUKEKOHE",
+  plate:{ x:875, y:655, w:300, h:115, rot:-2, title:"SPANISH GRAND PRIX", sub:"MOMTJUIC",
           titleColor:"#173a2a", subColor:"#0f5132" },
   // corner line sits *before* the space index given; crossing into it triggers the check
   corners:[ {at:9, limit:2}, {at:14, limit:3}, {at:20, limit:4}, {at:28, limit:3} , {at:36, limit:6],
@@ -498,7 +498,7 @@ const TRACK_MONTJUIC = {
 
 };
 
-const TRACKS = { pukekohe:TRACK_PUKEKOHE, panorama:TRACK_PANORAMA, easterncreek:TRACK_EASTERN_CREEK, manfeild:TRACK_MANFEILD };
+const TRACKS = { pukekohe:TRACK_PUKEKOHE, panorama:TRACK_PANORAMA, easterncreek:TRACK_EASTERN_CREEK, manfeild:TRACK_MANFEILD, montjuic:TRACK_MOMTJUIC};
 let TRACK = TRACK_PUKEKOHE;   // selected track (chosen on the track-select screen)
 let S = TRACK.spaces;
 
