@@ -643,7 +643,8 @@ const UPGRADE_CARDS = [
   {id:45, name:"Wings",          v:3, heat:1, limit:2, adv:true},
   {id:46, name:"Wings",          v:6, heat:2, limit:3, adv:true},
   {id:47, name:"4 Wheel Drive",  plus:2, accel:true, adv:true},
-  {id:48, name:"Extra Heat",     xheat:true, adv:true}
+  {id:48, name:"Extra Heat",     xheat:true, adv:true},
+  {id:49, name:"Air Intake",     v:1, cool:1, limit:-1, salvage:4, adv:true}
 ];
 const upgradeById = id => UPGRADE_CARDS.find(u=>u.id===id);
 /* expected speed of an upgrade (for bot valuation & previews) */
