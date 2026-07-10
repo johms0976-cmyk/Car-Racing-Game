@@ -488,7 +488,7 @@ const TRACK_MONTJUIC = {
   subtitle:"Barcelona",
   tagline:"Spanish International Grand Prix",
   terrain:"oval",                                   // art-board style: horse-racing infield oval
-  plate:{ x:875, y:655, w:300, h:115, rot:-2, title:"SPANISH GRAND PRIX", sub:"MOMTJUIC",
+  plate:{ x:875, y:100, w:300, h:115, rot:-2, title:"SPANISH GRAND PRIX", sub:"MONTJUïC",
           titleColor:"#173a2a", subColor:"#0f5132" },
   // corner line sits *before* the space index given; crossing into it triggers the check
   corners:[ {at:9, limit:2}, {at:14, limit:3}, {at:20, limit:4}, {at:28, limit:3} , {at:36, limit:6}],
@@ -525,7 +525,7 @@ const SIM_PROFILES = [
   { key:0, name:"Davidson", aggression:0.28, heatFloor:3, boostChance:0.15, riskTolerance:0, upshiftBias:0.20, cornerMargin:1 },
   { key:1, name:"Rookie",    aggression:0.58, heatFloor:2, boostChance:0.45, riskTolerance:1, upshiftBias:0.55, cornerMargin:0 },
   { key:2, name:"Pro", aggression:0.88, heatFloor:1, boostChance:0.72, riskTolerance:2, upshiftBias:0.85, cornerMargin:0 },
-  { key:3, name:"Legend", aggression:0.99, heatFloor:0, boostChance:1.00, riskTolerance:2, upshiftBias:1.00, cornerMargin:0 } 
+  { key:3, name:"Legend", aggression:0.99, heatFloor:0, boostChance:1.00, riskTolerance:2, upshiftBias:0.93, cornerMargin:0 } 
 ];
 const simProfile = () => SIM_PROFILES[Math.max(0, Math.min(SIM_PROFILES.length-1, G.difficulty))];
 /* Per-driver profile. Every rival normally uses the chosen difficulty profile,
