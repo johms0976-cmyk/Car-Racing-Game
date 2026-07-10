@@ -3377,10 +3377,10 @@ showModeSelect();
       if(phase !== "opening") return;   // idempotent
       phase = "race";
       try{ sessionStorage.removeItem("heat_openingTime"); }catch(e){}
-      fade(opening, 0, 2200, () => opening.pause());   // opening.mp3 slowly fades out
+      fade(opening, 0, 5800, () => opening.pause());   // opening.mp3 slowly fades out
       race.volume = 0;
       race.play().catch(()=>{});
-      fade(race, VOL.race, 2600);                      // race.mp3 slowly fades in
+      fade(race, VOL.race, 6000);                      // race.mp3 slowly fades in
     },
     /* race over: stop the race loop and play the win sting once */
     win(){
