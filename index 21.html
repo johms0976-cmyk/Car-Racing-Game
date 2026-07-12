@@ -596,8 +596,44 @@ const TRACK_MONACO = {
   spacePts:[[127,274],[142,232],[160,190],[187,157],[211,121],[244,84],[295,57],[344,93],[365,139],[383,181],[404,217],[428,250],[452,286],[479,323],[513,350],[546,383],[576,410],[609,434],[660,455],[709,473],[754,473],[811,452],[835,410],[847,356],[826,311],[796,274],[766,241],[733,199],[727,148],[748,99],[793,63],[844,57],[880,54],[926,51],[974,54],[1016,57],[1049,118],[1034,166],[1001,205],[980,244],[962,280],[938,323],[926,359],[908,413],[935,464],[989,443],[1019,392],[1019,347],[1025,298],[1049,253],[1104,229],[1152,253],[1161,308],[1164,353],[1161,404],[1152,446],[1131,485],[1101,519],[1061,552],[1019,570],[974,585],[929,600],[886,603],[835,603],[790,597],[748,582],[709,561],[675,546],[627,525],[591,497],[561,476],[522,452],[485,425],[452,404],[410,377],[377,347],[350,317],[320,283],[265,262],[217,289],[208,344],[208,398],[214,443],[217,494],[199,537],[169,576],[139,621],[130,666],[118,724],[72,751],[27,709],[39,660],[42,615],[42,573],[51,534],[60,485],[66,443],[81,401],[96,362],[109,320]]
 };
 
+  /* ===== Kidney — built with the REVUP track builder =====
+   Paste this whole block into index_20.html at the very END of the file,
+   on the line just above the last closing script tag. Nothing else to change:
+   it registers itself in TRACKS and adds its own card to the track picker. */
+const TRACK_KIDNEY = {
+  key:"kidney",
+  name:"Kidney", spaces:69, defaultLaps:2, heat:6, stress:3,
+  image:"", imgW:1200, imgH:800,
+  eyebrow:"",
+  subtitle:"Custom build",
+  tagline:"Hand-built fan board",
+  terrain:"parkland",
+  plate:{ x:239, y:311, w:300, h:112, rot:-2, title:"GRAND PRIX", sub:"MY CIRCUIT",
+          titleColor:"#173a2a", subColor:"#0f5132" },
+  panel:{x:1055,y:89}, podium:{x:658,y:357},
+  weatherTok:{x:1049,y:89,r:38},
+  corners:[ {at:1, limit:7}, {at:17, limit:4}, {at:35, limit:7}, {at:53, limit:3} ],
+  tents:[ {at:1, x:587, y:687, rot:177}, {at:17, x:76, y:617, rot:-142}, {at:35, x:600, y:62, rot:0}, {at:53, x:1170, y:459, rot:93} ],
 
-const TRACKS = { pukekohe:TRACK_PUKEKOHE, panorama:TRACK_PANORAMA, easterncreek:TRACK_EASTERN_CREEK, manfeild:TRACK_MANFEILD, montjuic:TRACK_MONTJUIC, silverrock:TRACK_SILVERROCK, monaco:TRACK_MONACO};
+  /* Gravel — space indices whose inner (Race Line) Spot and/or outer Spot is gravel.
+     A space in both lists has gravel right across it. Rule: at the end of your turn
+     (step 9), if your car is on a gravel Spot you must pay 1 Heat if you have any in
+     the Engine; if the Engine is empty, ignore it. */
+  gravel:{ inner:[12,13,14,15,16,17], outer:[32,33,34,35,36,37] },
+
+  /* Tunnels — inclusive runs of Spaces (from > to means the run wraps past space 0).
+     Rule: while a car is on a tunnel Space its player cannot discard from hand, and
+     this beats any Event / Upgrade / Road Condition that would otherwise let them.
+     Cooling down (card goes to the Engine) and Scrap (card comes off the top of the
+     draw deck) are not discards, so both are still allowed inside a tunnel. */
+  tunnels:[  ],
+
+  legendsLine:7,
+  spacePts:[[600,590],[564,592],[529,596],[494,600],[458,604],[423,607],[388,609],[352,608],[317,606],[281,602],[247,594],[212,584],[180,570],[149,553],[121,531],[99,503],[84,471],[82,436],[90,401],[107,371],[130,343],[156,319],[184,297],[214,279],[245,261],[277,245],[309,230],[342,216],[375,203],[408,191],[442,180],[477,171],[512,164],[547,160],[582,158],[618,158],[653,160],[688,164],[723,171],[758,180],[792,191],[825,203],[858,216],[891,230],[923,245],[955,261],[986,279],[1016,297],[1044,319],[1070,343],[1093,371],[1110,401],[1118,436],[1116,471],[1101,503],[1079,531],[1051,553],[1020,570],[988,584],[953,594],[919,602],[883,606],[848,608],[812,609],[777,607],[742,604],[706,600],[671,596],[636,592]]
+};
+
+
+const TRACKS = { pukekohe:TRACK_PUKEKOHE, panorama:TRACK_PANORAMA, easterncreek:TRACK_EASTERN_CREEK, manfeild:TRACK_MANFEILD, montjuic:TRACK_MONTJUIC, silverrock:TRACK_SILVERROCK, monaco:TRACK_MONACO, kidney:TRACK_KIDNEY};
 let TRACK = TRACK_PUKEKOHE;   // selected track (chosen on the track-select screen)
 let S = TRACK.spaces;
 
