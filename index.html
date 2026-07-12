@@ -538,10 +538,45 @@ const TRACK_SILVERROCK = {
   legendsLine:7,
   spacePts:[[1134,380],[1134,413],[1134,458],[1134,501],[1131,537],[1122,591],[1088,630],[1037,636],[995,645],[956,645],[911,651],[871,654],[826,657],[787,663],[739,672],[696,700],[663,727],[630,754],[582,763],[528,739],[504,696],[488,654],[455,615],[413,597],[377,579],[341,561],[298,546],[262,531],[223,516],[187,501],[151,482],[109,464],[66,443],[33,395],[45,338],[72,295],[99,259],[130,229],[154,196],[181,169],[205,133],[238,109],[268,72],[308,45],[368,57],[413,81],[443,103],[479,127],[513,151],[546,175],[582,211],[600,256],[603,298],[603,341],[603,386],[603,425],[606,470],[606,513],[600,561],[624,603],[678,630],[721,612],[751,573],[778,546],[808,513],[838,485],[868,458],[895,434],[929,395],[956,374],[980,338],[1007,305],[1031,253],[1010,199],[974,166],[944,148],[911,130],[865,109],[844,54],[898,27],[950,57],[986,72],[1025,96],[1046,118],[1085,154],[1119,196],[1134,241],[1131,286],[1131,326]]
 };
+  
+/* ===== Monaco — built with the REVUP track builder =====
+   Paste this whole block into index_20.html at the very END of the file,
+   on the line just above the last closing script tag. Nothing else to change:
+   it registers itself in TRACKS and adds its own card to the track picker. */
+const TRACK_MONACO = {
+  key:"monaco",
+  name:"Monaco", spaces:100, defaultLaps:2, heat:6, stress:3,
+  image:"tracks/Monaco.jpg", imgW:1200, imgH:800,
+  eyebrow:"",
+  subtitle:"Custom build",
+  tagline:"Hand-built fan board",
+  terrain:"oval",
+  plate:{ x:390, y:19, w:300, h:112, rot:-2, title:"GRAND PRIX", sub:"MY CIRCUIT",
+          titleColor:"#173a2a", subColor:"#0f5132" },
+  panel:{x:1079,y:728}, podium:{x:405,y:517},
+  weatherTok:{x:1115,y:731,r:38},
+  corners:[ {at:6, limit:3}, {at:21, limit:7}, {at:29, limit:4}, {at:36, limit:3}, {at:44, limit:2}, {at:50, limit:3}, {at:78, limit:5}, {at:89, limit:2} ],
+  tents:[ {at:21, x:755, y:402, rot:192}, {at:29, x:684, y:58, rot:120}, {at:36, x:1111, y:93, rot:258}, {at:44, x:903, y:509, rot:27}, {at:50, x:1094, y:314, rot:356}, {at:78, x:279, y:323, rot:326}, {at:89, x:169, y:754, rot:102} ],
+
+  /* Gravel — space indices whose inner (Race Line) Spot and/or outer Spot is gravel.
+     A space in both lists has gravel right across it. Rule: at the end of your turn
+     (step 9), if your car is on a gravel Spot you must pay 1 Heat if you have any in
+     the Engine; if the Engine is empty, ignore it. */
+  gravel:{ inner:[], outer:[] },
+
+  /* Tunnels — inclusive runs of Spaces (from > to means the run wraps past space 0).
+     Rule: while a car is on a tunnel Space its player cannot discard from hand, and
+     this beats any Event / Upgrade / Road Condition that would otherwise let them.
+     Cooling down (card goes to the Engine) and Scrap (card comes off the top of the
+     draw deck) are not discards, so both are still allowed inside a tunnel. */
+  tunnels:[  ],
+
+  legendsLine:7,
+  spacePts:[[127,274],[142,232],[160,190],[187,157],[211,121],[244,84],[295,57],[344,93],[365,139],[383,181],[404,217],[428,250],[452,286],[479,323],[513,350],[546,383],[576,410],[609,434],[660,455],[709,473],[754,473],[811,452],[835,410],[847,356],[826,311],[796,274],[766,241],[733,199],[727,148],[748,99],[793,63],[844,57],[880,54],[926,51],[974,54],[1016,57],[1049,118],[1034,166],[1001,205],[980,244],[962,280],[938,323],[926,359],[908,413],[935,464],[989,443],[1019,392],[1019,347],[1025,298],[1049,253],[1104,229],[1152,253],[1161,308],[1164,353],[1161,404],[1152,446],[1131,485],[1101,519],[1061,552],[1019,570],[974,585],[929,600],[886,603],[835,603],[790,597],[748,582],[709,561],[675,546],[627,525],[591,497],[561,476],[522,452],[485,425],[452,404],[410,377],[377,347],[350,317],[320,283],[265,262],[217,289],[208,344],[208,398],[214,443],[217,494],[199,537],[169,576],[139,621],[130,666],[118,724],[72,751],[27,709],[39,660],[42,615],[42,573],[51,534],[60,485],[66,443],[81,401],[96,362],[109,320]]
+};
 
 
-
-const TRACKS = { pukekohe:TRACK_PUKEKOHE, panorama:TRACK_PANORAMA, easterncreek:TRACK_EASTERN_CREEK, manfeild:TRACK_MANFEILD, montjuic:TRACK_MONTJUIC, silverrock:TRACK_SILVERROCK };
+const TRACKS = { pukekohe:TRACK_PUKEKOHE, panorama:TRACK_PANORAMA, easterncreek:TRACK_EASTERN_CREEK, manfeild:TRACK_MANFEILD, montjuic:TRACK_MONTJUIC, silverrock:TRACK_SILVERROCK, monaco:TRACK_MONACO};
 let TRACK = TRACK_PUKEKOHE;   // selected track (chosen on the track-select screen)
 let S = TRACK.spaces;
 
@@ -4433,61 +4468,7 @@ showModeSelect();
     stage.addEventListener("keydown", (e) => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); beginGame(); } });
   }
 })();
-/* ===== Monaco — built with the REVUP track builder =====
-   Paste this whole block into index_20.html at the very END of the file,
-   on the line just above the last closing script tag. Nothing else to change:
-   it registers itself in TRACKS and adds its own card to the track picker. */
-const TRACK_MONACO = {
-  key:"monaco",
-  name:"Monaco", spaces:100, defaultLaps:2, heat:6, stress:3,
-  image:"tracks/Monaco.jpg", imgW:1200, imgH:800,
-  eyebrow:"",
-  subtitle:"Custom build",
-  tagline:"Hand-built fan board",
-  terrain:"oval",
-  plate:{ x:390, y:19, w:300, h:112, rot:-2, title:"GRAND PRIX", sub:"MY CIRCUIT",
-          titleColor:"#173a2a", subColor:"#0f5132" },
-  panel:{x:1079,y:728}, podium:{x:405,y:517},
-  weatherTok:{x:1115,y:731,r:38},
-  corners:[ {at:6, limit:3}, {at:21, limit:7}, {at:29, limit:4}, {at:36, limit:3}, {at:44, limit:2}, {at:50, limit:3}, {at:78, limit:5}, {at:89, limit:2} ],
-  tents:[ {at:21, x:755, y:402, rot:192}, {at:29, x:684, y:58, rot:120}, {at:36, x:1111, y:93, rot:258}, {at:44, x:903, y:509, rot:27}, {at:50, x:1094, y:314, rot:356}, {at:78, x:279, y:323, rot:326}, {at:89, x:169, y:754, rot:102} ],
 
-  /* Gravel — space indices whose inner (Race Line) Spot and/or outer Spot is gravel.
-     A space in both lists has gravel right across it. Rule: at the end of your turn
-     (step 9), if your car is on a gravel Spot you must pay 1 Heat if you have any in
-     the Engine; if the Engine is empty, ignore it. */
-  gravel:{ inner:[], outer:[] },
-
-  /* Tunnels — inclusive runs of Spaces (from > to means the run wraps past space 0).
-     Rule: while a car is on a tunnel Space its player cannot discard from hand, and
-     this beats any Event / Upgrade / Road Condition that would otherwise let them.
-     Cooling down (card goes to the Engine) and Scrap (card comes off the top of the
-     draw deck) are not discards, so both are still allowed inside a tunnel. */
-  tunnels:[  ],
-
-  legendsLine:7,
-  spacePts:[[127,274],[142,232],[160,190],[187,157],[211,121],[244,84],[295,57],[344,93],[365,139],[383,181],[404,217],[428,250],[452,286],[479,323],[513,350],[546,383],[576,410],[609,434],[660,455],[709,473],[754,473],[811,452],[835,410],[847,356],[826,311],[796,274],[766,241],[733,199],[727,148],[748,99],[793,63],[844,57],[880,54],[926,51],[974,54],[1016,57],[1049,118],[1034,166],[1001,205],[980,244],[962,280],[938,323],[926,359],[908,413],[935,464],[989,443],[1019,392],[1019,347],[1025,298],[1049,253],[1104,229],[1152,253],[1161,308],[1164,353],[1161,404],[1152,446],[1131,485],[1101,519],[1061,552],[1019,570],[974,585],[929,600],[886,603],[835,603],[790,597],[748,582],[709,561],[675,546],[627,525],[591,497],[561,476],[522,452],[485,425],[452,404],[410,377],[377,347],[350,317],[320,283],[265,262],[217,289],[208,344],[208,398],[214,443],[217,494],[199,537],[169,576],[139,621],[130,666],[118,724],[72,751],[27,709],[39,660],[42,615],[42,573],[51,534],[60,485],[66,443],[81,401],[96,362],[109,320]]
-};
-
-/* register it + slot a card into the track picker */
-TRACKS["monaco"] = TRACK_MONACO;
-(function(){
-  const _showTrackSelect = showTrackSelect;
-  showTrackSelect = function(){
-    _showTrackSelect.apply(this, arguments);
-    const list = document.querySelector('#setup .tracklist');
-    if(!list || list.querySelector('[data-key="monaco"]')) return;
-    const t = TRACK_MONACO;
-    const b = document.createElement('button');
-    b.className = 'trackcard'; b.dataset.key = t.key;
-    b.innerHTML = '<div class="tc-art">' + trackThumb(t) + '</div>' +
-      '<div class="tc-body"><div class="tc-name">' + t.name + '</div>' +
-      '<div class="tc-meta">' + t.spaces + ' spaces · ' + t.corners.length + ' corners · ' + t.subtitle + '</div></div>' +
-      '<div class="tc-go">Race \u25B8</div>';
-    b.onclick = () => { selectTrack(t.key); G.hotseat ? showHotseatSetup() : showSetup(); };
-    list.appendChild(b);
-  };
-})();  
   
 </script>
 </body>
