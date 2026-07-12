@@ -508,6 +508,62 @@ const TRACK_MONTJUIC = {
 
 };
 
+ /* ===== Silverrock — built with the REVUP track builder =====
+   Paste this whole block into index_20.html at the very END of the file,
+   on the line just above the last closing script tag. Nothing else to change:
+   it registers itself in TRACKS and adds its own card to the track picker. */
+const TRACK_SILVERROCK = {
+  key:"silverrock",
+  name:"Silverrock", spaces:89, defaultLaps:2, heat:6, stress:3,
+  image:"", imgW:1200, imgH:800,
+  eyebrow:"British Grand Prix · Silverstone",
+  subtitle:"Custom build",
+  tagline:"Hand-built fan board",
+  terrain:"oval",
+  plate:{ x:722, y:703, w:300, h:112, rot:-2, title:"GRAND PRIX", sub:"MY CIRCUIT",
+          titleColor:"#173a2a", subColor:"#0f5132" },
+  panel:{x:777,y:261}, podium:{x:348,y:249},
+  weatherTok:{x:799,y:258,r:38},
+  corners:[ {at:6, limit:7}, {at:19, limit:5}, {at:33, limit:6}, {at:44, limit:5}, {at:60, limit:3}, {at:73, limit:4}, {at:78, limit:2} ],
+  tents:[ {at:6, x:617, y:837, rot:155}, {at:19, x:247, y:827, rot:205}, {at:33, x:111, y:354, rot:295}, {at:44, x:331, y:134, rot:8}, {at:60, x:831, y:-60, rot:6}, {at:73, x:1119, y:289, rot:97}, {at:78, x:1080, y:470, rot:118} ],
+
+  /* Gravel — space indices whose inner (Race Line) Spot and/or outer Spot is gravel.
+     A space in both lists has gravel right across it. Rule: at the end of your turn
+     (step 9), if your car is on a gravel Spot you must pay 1 Heat if you have any in
+     the Engine; if the Engine is empty, ignore it. */
+  gravel:{ inner:[], outer:[] },
+
+  /* Tunnels — inclusive runs of Spaces (from > to means the run wraps past space 0).
+     Rule: while a car is on a tunnel Space its player cannot discard from hand, and
+     this beats any Event / Upgrade / Road Condition that would otherwise let them.
+     Cooling down (card goes to the Engine) and Scrap (card comes off the top of the
+     draw deck) are not discards, so both are still allowed inside a tunnel. */
+  tunnels:[  ],
+
+  legendsLine:7,
+  spacePts:[[1134,380],[1134,413],[1134,458],[1134,501],[1131,537],[1122,591],[1088,630],[1037,636],[995,645],[956,645],[911,651],[871,654],[826,657],[787,663],[739,672],[696,700],[663,727],[630,754],[582,763],[528,739],[504,696],[488,654],[455,615],[413,597],[377,579],[341,561],[298,546],[262,531],[223,516],[187,501],[151,482],[109,464],[66,443],[33,395],[45,338],[72,295],[99,259],[130,229],[154,196],[181,169],[205,133],[238,109],[268,72],[308,45],[368,57],[413,81],[443,103],[479,127],[513,151],[546,175],[582,211],[600,256],[603,298],[603,341],[603,386],[603,425],[606,470],[606,513],[600,561],[807,34],[832,36],[860,40],[888,50],[914,59],[940,73],[960,89],[981,109],[998,130],[1010,154],[1020,181],[1026,208],[1029,235],[1028,262],[1024,292],[1018,318],[1010,344],[1001,371],[989,397],[976,420],[962,444],[946,468],[931,491],[912,511],[896,534],[875,553],[856,571],[835,592],[1131,286],[1131,326]]
+};
+
+/* register it + slot a card into the track picker */
+TRACKS["silverrock"] = TRACK_SILVERROCK;
+(function(){
+  const _showTrackSelect = showTrackSelect;
+  showTrackSelect = function(){
+    _showTrackSelect.apply(this, arguments);
+    const list = document.querySelector('#setup .tracklist');
+    if(!list || list.querySelector('[data-key="silverrock"]')) return;
+    const t = TRACK_SILVERROCK;
+    const b = document.createElement('button');
+    b.className = 'trackcard'; b.dataset.key = t.key;
+    b.innerHTML = '<div class="tc-art">' + trackThumb(t) + '</div>' +
+      '<div class="tc-body"><div class="tc-name">' + t.name + '</div>' +
+      '<div class="tc-meta">' + t.spaces + ' spaces · ' + t.corners.length + ' corners · ' + t.subtitle + '</div></div>' +
+      '<div class="tc-go">Race \u25B8</div>';
+    b.onclick = () => { selectTrack(t.key); G.hotseat ? showHotseatSetup() : showSetup(); };
+    list.appendChild(b);
+  };
+})(); 
+
 const TRACKS = { pukekohe:TRACK_PUKEKOHE, panorama:TRACK_PANORAMA, easterncreek:TRACK_EASTERN_CREEK, manfeild:TRACK_MANFEILD, montjuic:TRACK_MONTJUIC};
 let TRACK = TRACK_PUKEKOHE;   // selected track (chosen on the track-select screen)
 let S = TRACK.spaces;
