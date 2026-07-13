@@ -702,7 +702,10 @@ const TRACK_AURORA = {
   spacePts:[[1134,495],[1116,532],[1090,564],[1058,589],[1023,610],[986,626],[947,638],[907,647],[866,653],[825,656],[784,657],[743,658],[703,660],[662,665],[622,674],[583,687],[545,700],[506,713],[467,725],[427,733],[386,739],[345,742],[304,741],[264,736],[224,727],[185,713],[149,694],[117,669],[89,639],[70,603],[59,564],[59,523],[67,483],[83,445],[104,410],[128,377],[154,345],[181,315],[208,284],[233,252],[258,219],[284,187],[311,157],[342,130],[376,106],[412,88],[450,73],[490,64],[531,59],[571,58],[612,62],[652,70],[692,81],[730,96],[767,113],[803,132],[839,152],[874,173],[910,193],[945,213],[980,235],[1014,258],[1047,282],[1077,310],[1103,341],[1124,376],[1138,415],[1142,455]]
 };
 
-/* ===== Britain — added with the REVUP track editor ===== */
+/* ===== The Palace — built with the REVUP track builder =====
+   Paste this whole block into index_20.html at the very END of the file,
+   on the line just above the last closing script tag. Nothing else to change:
+   it registers itself in TRACKS and adds its own card to the track picker. */
 const TRACK_BRITAIN = {
   key:"britain",
   name:"The Palace", spaces:63, defaultLaps:2, heat:6, stress:3,
@@ -711,37 +714,28 @@ const TRACK_BRITAIN = {
   subtitle:"Base Game",
   tagline:"",
   terrain:"farmland",
-  plate:{ x:19, y:625, w:300, h:112, rot:-2, title:"GRAND PRIX", sub:"The Palace",
+  plate:{ x:31, y:607, w:300, h:112, rot:-2, title:"GRAND PRIX", sub:"The Palace",
           titleColor:"#173a2a", subColor:"#0f5132" },
-  panel:{x:123,y:481}, podium:{x:96,y:96},
+  panel:{x:123,y:481}, podium:{x:268,y:81},
   weatherTok:{x:112,y:478,r:38},
   corners:[ {at:15, limit:10}, {at:24, limit:4}, {at:30, limit:6}, {at:43, limit:4}, {at:48, limit:3} ],
-  tents:[ {at:15, x:1153, y:61, rot:227}, {at:24, x:1167, y:458, rot:281}, {at:30, x:800, y:757, rot:33}, {at:43, x:511, y:360, rot:149}, {at:48, x:741, y:721, rot:320} ],
-  gravel:{ inner:[], outer:[] },
-  tunnels:[  ],
-  legendsLine:7,
-  spacePts:[[380,127],[416,90],[467,63],[525,54],[570,54],[612,54],[663,54],[715,54],[760,51],[811,51],[853,51],[902,51],[947,54],[1001,54],[1052,66],[1101,93],[1134,142],[1143,199],[1140,247],[1134,302],[1125,353],[1119,392],[1104,446],[1088,482],[1064,537],[1046,576],[1019,615],[989,660],[959,690],[895,727],[847,712],[802,669],[787,612],[793,558],[811,501],[838,467],[853,401],[814,350],[757,341],[706,377],[660,398],[597,401],[540,416],[507,470],[522,531],[588,555],[633,561],[699,594],[715,657],[651,678],[597,651],[549,630],[501,606],[455,582],[413,552],[365,516],[341,482],[314,428],[305,380],[305,332],[319,281],[326,226],[344,184]]
-};
+  tents:[ {at:15, x:1153, y:61, rot:227}, {at:24, x:1146, y:464, rot:281}, {at:30, x:869, y:591, rot:190}, {at:43, x:511, y:360, rot:149}, {at:48, x:741, y:721, rot:320} ],
 
-/* ===== Route 66 — added with the REVUP track editor ===== */
-const TRACK_USA = {
-  key:"usa",
-  name:"Route 66", spaces:69, defaultLaps:2, heat:6, stress:3,
-  image:"tracks/USA .jpg", imgW:1200, imgH:800,
-  eyebrow:"USA Touring Grand Prix",
-  subtitle:"Race along Route 66",
-  tagline:"",
-  terrain:"desert",
-  plate:{ x:-53, y:7, w:300, h:112, rot:-2, title:"GRAND PRIX", sub:"ROUTE 66",
-          titleColor:"#173a2a", subColor:"#0f5132" },
-  panel:{x:118,y:258}, podium:{x:283,y:87},
-  weatherTok:{x:136,y:252,r:38},
-  corners:[ {at:12, limit:7}, {at:33, limit:3}, {at:49, limit:3}, {at:57, limit:2} ],
-  tents:[ {at:12, x:1158, y:746, rot:320}, {at:33, x:24, y:705, rot:79}, {at:49, x:632, y:40, rot:225}, {at:57, x:418, y:549, rot:35} ],
+  /* Gravel — space indices whose inner (Race Line) Spot and/or outer Spot is gravel.
+     A space in both lists has gravel right across it. Rule: at the end of your turn
+     (step 9), if your car is on a gravel Spot you must pay 1 Heat if you have any in
+     the Engine; if the Engine is empty, ignore it. */
   gravel:{ inner:[], outer:[] },
+
+  /* Tunnels — inclusive runs of Spaces (from > to means the run wraps past space 0).
+     Rule: while a car is on a tunnel Space its player cannot discard from hand, and
+     this beats any Event / Upgrade / Road Condition that would otherwise let them.
+     Cooling down (card goes to the Engine) and Scrap (card comes off the top of the
+     draw deck) are not discards, so both are still allowed inside a tunnel. */
   tunnels:[  ],
+
   legendsLine:7,
-  spacePts:[[941,151],[998,166],[1040,199],[1073,241],[1088,292],[1107,344],[1119,386],[1131,437],[1143,485],[1152,534],[1155,579],[1146,642],[1119,690],[1070,730],[1016,745],[965,745],[914,745],[862,745],[811,745],[766,742],[715,742],[663,745],[615,744],[569,748],[518,745],[473,744],[416,741],[374,739],[320,742],[274,739],[223,745],[175,751],[109,745],[75,690],[96,627],[145,603],[202,588],[253,561],[283,516],[311,464],[326,422],[338,374],[353,326],[371,280],[389,232],[416,187],[446,142],[473,99],[531,69],[591,84],[621,142],[597,196],[561,244],[531,295],[501,341],[479,389],[452,431],[455,504],[522,491],[558,443],[579,398],[609,359],[636,317],[669,277],[699,235],[736,199],[775,163],[832,145],[883,142]]
+  spacePts:[[380,127],[416,90],[467,63],[525,54],[570,54],[612,54],[663,54],[715,54],[760,51],[811,51],[853,51],[902,51],[947,54],[1001,54],[1028,72],[1076,99],[1107,142],[1119,196],[1116,238],[1110,289],[1104,347],[1101,392],[1088,446],[1073,488],[1052,543],[1028,588],[1001,630],[971,666],[935,703],[895,715],[832,706],[790,663],[781,606],[787,552],[811,501],[829,458],[847,404],[814,350],[757,341],[706,377],[660,398],[597,401],[540,416],[504,461],[522,525],[579,555],[624,561],[684,585],[709,645],[651,684],[597,651],[549,630],[501,606],[455,582],[419,564],[374,528],[350,473],[335,428],[332,371],[332,323],[338,268],[350,220],[368,175]]
 };
 
 /* ===== Italy — added with the REVUP track editor ===== */
