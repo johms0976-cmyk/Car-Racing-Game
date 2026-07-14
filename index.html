@@ -204,21 +204,42 @@ button.act:disabled{opacity:.35; pointer-events:none}
 .sheet.tspicker .tracklist::-webkit-scrollbar{width:5px}
 .sheet.tspicker .tracklist::-webkit-scrollbar-thumb{background:#4a3f63; border-radius:3px}
 
-/* Race Rules */
-.racerules{display:flex; flex-direction:column; gap:12px}
-/* Race Rules: the sheet itself is pinned to the viewport and ONLY the list
-   of rules scrolls — the title, the strapline and the Back button stay put. */
-.sheet.rules{display:flex; flex-direction:column; padding-bottom:16px;
+/* Race Rules layout */
+.sheet.rules{
+  display:flex;
+  flex-direction:column;
+  padding-bottom:16px;
   max-height:calc(100vh - 40px - env(safe-area-inset-bottom,0px));
-  max-height:calc(100dvh - 40px - env(safe-area-inset-bottom,0px)); overflow:hidden}
+  max-height:calc(100dvh - 40px - env(safe-area-inset-bottom,0px));
+  overflow:hidden;              /* sheet itself doesn't scroll */
+}
+
 .sheet.rules > h1,
 .sheet.rules > .tag,
-.sheet.rules > .btnrow{flex:0 0 auto}
-.sheet.rules .tracklist{flex:1 1 auto; min-height:120px; overflow-y:auto;
-  -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
-  padding:2px 10px 6px 2px; margin-right:-8px}
-.sheet.rules .racerules::-webkit-scrollbar{width:5px}
-.sheet.rules .racerules::-webkit-scrollbar-thumb{background:#4a3f63; border-radius:3px}
+.sheet.rules > .btnrow{
+  flex:0 0 auto;                /* fixed header/footer */
+}
+
+/* THIS is your scroll container */
+.sheet.rules > .racerules{
+  flex:1 1 auto;                /* fills remaining space */
+  min-height:120px;
+  overflow-y:auto;              /* scrolls from "The pack" down */
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  padding:2px 10px 6px 2px;
+  margin-right:-8px;
+}
+
+/* Scrollbar styling */
+.sheet.rules > .racerules::-webkit-scrollbar{
+  width:5px;
+}
+.sheet.rules > .racerules::-webkit-scrollbar-thumb{
+  background:#4a3f63;
+  border-radius:3px;
+}
+
   
   
 /* circuit brief modal — outline + a line or two, then cancel / next */
