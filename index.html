@@ -908,11 +908,11 @@ const TRACK_BRITAIN = {
 /* ===== Route 66 — added with the REVUP track editor ===== */
 const TRACK_USA = {
   key:"usa",
-  name:"Route 66", spaces:69, defaultLaps:2, heat:6, stress:3,
+  name:"Root 69", spaces:69, defaultLaps:2, heat:6, stress:3,
   image:"tracks/USA .jpg", imgW:1200, imgH:800,
   eyebrow:"USA Touring Grand Prix",
-  subtitle:"Race along Route 66",
-  tagline:"",
+  subtitle:"Race along Route 69",
+  tagline:"Whoever cums first, wins!",
   terrain:"desert",
   plate:{ x:-53, y:7, w:300, h:112, rot:-2, title:"GRAND PRIX", sub:"ROUTE 66",
           titleColor:"#173a2a", subColor:"#0f5132" },
@@ -932,7 +932,7 @@ const TRACK_ITALY = {
   image:"tracks/Italy.jpg", imgW:1200, imgH:800,
   eyebrow:"",
   subtitle:"When in Rome",
-  tagline:"",
+  tagline:"When in Rome",
   terrain:"oval",
   plate:{ x:-35, y:16, w:300, h:112, rot:-2, title:"GRAND PRIX", sub:"When in Roma",
           titleColor:"#173a2a", subColor:"#0f5132" },
@@ -952,7 +952,7 @@ const TRACK_FRANCE = {
   image:"tracks/France.jpg", imgW:1200, imgH:800,
   eyebrow:"Custom Grand Prix · My Circuit",
   subtitle:"Custom build",
-  tagline:"Hand-built fan board",
+  tagline:"A Maude-der in Paris",
   terrain:"oval",
   plate:{ x:73, y:7, w:300, h:112, rot:-2, title:"Oui", sub:"Oui Oui!",
           titleColor:"#173a2a", subColor:"#0f5132" },
@@ -972,7 +972,7 @@ const TRACK_MEXICO = {
   image:"tracks/Mexico.jpg", imgW:1200, imgH:800,
   eyebrow:"",
   subtitle:"Tenochtitlán speedway!",
-  tagline:"",
+  tagline:"Az-Kick the Competition",
   terrain:"desert",
   plate:{ x:444, y:16, w:300, h:112, rot:-2, title:"Mai-Ze-Co", sub:"Tenochtitlán speedway!",
           titleColor:"#eb4d3d", subColor:"#0f5132" },
@@ -2772,7 +2772,7 @@ function showSetup(){
   const sel = (a,b) => a===b ? ' class="sel"' : '';
   el.innerHTML = `
     <div class="sheet rules">
-      <h1>REVUP <span>· race rules</span></h1>
+      <h1>REVUP <span>· Race Rules</span></h1>
       <div class="tag">${TRACK.name} — ${TRACK.tagline}</div>
     <div class="racerules">
       <div class="optgroup"><div class="olbl">The pack</div>
@@ -2784,7 +2784,7 @@ function showSetup(){
         <div class="seg" id="seglaps">
           <button data-v="1"${sel(1,D.laps)}>1 · Sprint</button><button data-v="${GP}"${sel(GP,D.laps)}>${GP} · Grand Prix</button>
         </div>
-        <div class="phase-hint" style="margin:7px 0 0">Grand Prix runs ${TRACK.name}'s full printed distance — ${GP} lap${GP>1?"s":""}.</div>
+        <div class="phase-hint" style="margin:7px 0 0">Grand Prix runs ${TRACK.name}'s full distance — ${GP} lap${GP>1?"s":""}.</div>
       </div>
       <div class="optgroup"><div class="olbl">Rival pace / skill</div>
         <div class="seg" id="segdiff">
@@ -2800,7 +2800,7 @@ function showSetup(){
         <div class="seg" id="segupglvl">
           <button data-v="reg"${sel("reg",D.upglvl)}>Rust only</button><button data-v="all"${sel("all",D.upglvl)}>Rust + Chrome</button>
         </div></div>
-      <div class="optgroup"><div class="olbl">Weather &amp; road conditions (advanced module)</div>
+      <div class="optgroup"><div class="olbl">Weather &amp; road conditions</div>
         <select id="selweather" style="width:100%;padding:11px 10px;border-radius:8px;border:2px solid #4a3f63;background:#171221;color:var(--cream);font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.5px">
           <option value="none"${D.weather==="none"?" selected":""}>Dry — no weather</option>
           <option value="random"${D.weather==="random"?" selected":""}>🎲 Random weather</option>
