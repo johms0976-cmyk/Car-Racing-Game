@@ -2709,12 +2709,9 @@ function showSetup(){
   const sel = (a,b) => a===b ? ' class="sel"' : '';
   el.innerHTML = `
     <div class="sheet">
-      <h1>REVUP <span>· race rules</span></h1>
+      <h1>REVUP <span>· Race Rules</span></h1>
       <div class="tag">${TRACK.name} — ${TRACK.tagline}</div>
-      <div class="optgroup"><div class="olbl">The pack</div>
-        <div class="standrow"><div>Grid</div><div style="margin-left:auto;font-weight:800">${RIVAL_CARS+1} cars — you + ${RIVAL_CARS} rivals</div></div>
-        <div class="standrow"><div>Rival AI</div><div style="margin-left:auto;font-weight:800">Full drivers</div></div>
-        <div class="phase-hint" style="margin:7px 0 0">Every race is a full ${RIVAL_CARS+1}-car pack. Rivals are simulated drivers — each one runs its own deck, gears and Fuel and drives a whole round. Pace/skill below sets how hard they push and how tightly they hoard Fuel.</div>
+      
       </div>
       <div class="optgroup"><div class="olbl">Race distance</div>
         <div class="seg" id="seglaps">
@@ -2736,11 +2733,11 @@ function showSetup(){
         <div class="seg" id="segupglvl">
           <button data-v="reg"${sel("reg",D.upglvl)}>Rust only</button><button data-v="all"${sel("all",D.upglvl)}>Rust + Chrome</button>
         </div></div>
-      <div class="optgroup"><div class="olbl">Weather &amp; road conditions (advanced module)</div>
+      <div class="optgroup"><div class="olbl">Weather &amp; road conditions</div>
         <select id="selweather" style="width:100%;padding:11px 10px;border-radius:8px;border:2px solid #4a3f63;background:#171221;color:var(--cream);font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.5px">
           <option value="none"${D.weather==="none"?" selected":""}>Dry — no weather</option>
           <option value="random"${D.weather==="random"?" selected":""}>🎲 Random weather</option>
-          ${Object.keys(WEATHER_TYPES).filter(k=>k!=="none").map(k=>`<option value="${k}"${D.weather===k?" selected":""}>${WEATHER_TYPES[k].icon} ${WEATHER_TYPES[k].name}</option>`).join("")}
+          ${Object.keys(WEATHER_TYPES).filter(k=>k!=="random").map(k=>`<option value="${k}"${D.weather===k?" selected":""}>${WEATHER_TYPES[k].icon} ${WEATHER_TYPES[k].name}</option>`).join("")}
         </select>
         <div id="weatherblurb" class="phase-hint" style="margin:8px 0 0;min-height:16px"></div>
       </div>
