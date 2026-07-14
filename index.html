@@ -203,6 +203,21 @@ button.act:disabled{opacity:.35; pointer-events:none}
   padding:2px 10px 6px 2px; margin-right:-8px}
 .sheet.tspicker .tracklist::-webkit-scrollbar{width:5px}
 .sheet.tspicker .tracklist::-webkit-scrollbar-thumb{background:#4a3f63; border-radius:3px}
+
+/* Circuit picker: the sheet itself is pinned to the viewport and ONLY the list
+   of tracks scrolls — the title, the strapline and the Back button stay put. */
+.sheet.rules{display:flex; flex-direction:column; padding-bottom:16px;
+  max-height:calc(100vh - 40px - env(safe-area-inset-bottom,0px));
+  max-height:calc(100dvh - 40px - env(safe-area-inset-bottom,0px)); overflow:hidden}
+.sheet.rules > h1,
+.sheet.rules > .tag,
+.sheet.rules > .btnrow{flex:0 0 auto}
+.sheet.rules .tracklist{flex:1 1 auto; min-height:120px; overflow-y:auto;
+  -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+  padding:2px 10px 6px 2px; margin-right:-8px}
+.sheet.rules .tracklist::-webkit-scrollbar{width:5px}
+.sheet.rules .tracklist::-webkit-scrollbar-thumb{background:#4a3f63; border-radius:3px}
+  
   
 /* circuit brief modal — outline + a line or two, then cancel / next */
 #trackModal{z-index:70; background:rgba(10,8,14,.95)}
@@ -2753,7 +2768,7 @@ function showSetup(){
   };
   const sel = (a,b) => a===b ? ' class="sel"' : '';
   el.innerHTML = `
-    <div class="sheet">
+    <div class="sheet rules">
       <h1>REVUP <span>· race rules</span></h1>
       <div class="tag">${TRACK.name} — ${TRACK.tagline}</div>
       <div class="optgroup"><div class="olbl">The pack</div>
