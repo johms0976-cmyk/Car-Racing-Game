@@ -203,27 +203,6 @@ button.act:disabled{opacity:.35; pointer-events:none}
   padding:2px 10px 6px 2px; margin-right:-8px}
 .sheet.tspicker .tracklist::-webkit-scrollbar{width:5px}
 .sheet.tspicker .tracklist::-webkit-scrollbar-thumb{background:#4a3f63; border-radius:3px}
-
-  .sheet {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;          /* pinned to viewport */
-  overflow: hidden;       /* prevent sheet itself from scrolling */
-}
-
-.sheet-header {
-  flex: 0 0 auto;         /* fixed height */
-  padding-bottom: 10px;   /* optional spacing */
-  background: inherit;    /* keeps your theme consistent */
-  z-index: 10;            /* stays above scrolling content */
-}
-
-.sheet-body {
-  flex: 1 1 auto;         /* fills remaining space */
-  overflow-y: auto;       /* scrolls only this part */
-  padding-bottom: 20px;   /* optional */
-}
-
   
 /* circuit brief modal — outline + a line or two, then cancel / next */
 #trackModal{z-index:70; background:rgba(10,8,14,.95)}
@@ -2733,15 +2712,11 @@ function showSetup(){
   const sel = (a,b) => a===b ? ' class="sel"' : '';
   el.innerHTML = `
     <div class="sheet">
-      <div class="sheet-header">
       <h1>REVUP <span>· race rules</span></h1>
       <div class="tag">${TRACK.name} — ${TRACK.tagline}</div>
   </div>
 
-  <div class="sheet-body">
-    <div class="optgroup">…</div>
-    <div class="optgroup">…</div>
-    <div class="optgroup">…</div>
+
       
       <div class="optgroup"><div class="olbl">The pack</div>
         <div class="standrow"><div>Grid</div><div style="margin-left:auto;font-weight:800">${RIVAL_CARS+1} cars — you + ${RIVAL_CARS} rivals</div></div>
@@ -2794,8 +2769,6 @@ function showSetup(){
           : g==="draft"
           ? "Scav run: once the grid is set, every driver picks 3 Mods from a shared scrap heap (snake order by grid)."
           : "Scrap pull: 3 random Mods bolted onto each car — the quick-start shortcut.";
-        </div>
-</div>
       }
     });
   }
