@@ -846,23 +846,45 @@ const TRACK_ACACIA = {
   spacePts:[[340,729],[303,721],[266,710],[230,698],[195,682],[161,664],[130,642],[102,616],[78,585],[63,550],[58,513],[65,475],[82,441],[105,410],[131,382],[157,354],[179,322],[192,286],[203,250],[218,214],[239,183],[266,155],[296,132],[330,113],[365,97],[401,84],[438,74],[475,67],[513,62],[552,59],[590,58],[628,59],[666,63],[704,68],[742,76],[779,86],[815,98],[850,114],[884,132],[916,153],[946,177],[973,204],[998,233],[1023,262],[1049,290],[1076,317],[1103,344],[1127,374],[1141,410],[1136,447],[1115,479],[1087,505],[1056,527],[1023,548],[991,568],[958,588],[926,609],[894,629],[861,649],[827,667],[792,683],[756,697],[720,709],[683,719],[645,727],[608,733],[570,738],[531,741],[493,742],[455,741],[416,739],[378,735]]
 };
 
-const TRACK_HARBOUR = {
+/* ===== Harbour City — built with the REVUP track builder =====
+   Paste this whole block into index_20.html at the very END of the file,
+   on the line just above the last closing script tag. Nothing else to change:
+   it registers itself in TRACKS and adds its own card to the track picker. */
+const TRACK_HARBOURCITY = {
   key:"harbourcity",
   name:"Harbour City", spaces:74, defaultLaps:2, heat:6, stress:3,
-  image:"", imgW:1200, imgH:800,
+  image:"harbourcity.png", imgW:1200, imgH:800,
   eyebrow:"City Grand Prix · Harbour City street circuit",
   subtitle:"Between the barriers",
   tagline:"Harbour City — a downtown street circuit threading the blocks, theme template board",
   terrain:"urban",
-  plate:{ x:450, y:150, w:320, h:110, rot:-2, title:"CITY GRAND PRIX", sub:"HARBOUR CITY",
+  plate:{ x:450, y:150, w:0, h:0, rot:-2, title:"CITY GRAND PRIX", sub:"HARBOUR CITY",
           titleColor:"#1c2430", subColor:"#28425e" },
-  panel:{x:600,y:420}, podium:{x:280,y:400},
+  panel:{x:0,y:0}, podium:{x:0,y:0},
   weatherTok:{x:600,y:420,r:38},
-  corners:[ {at:12, limit:3}, {at:26, limit:2}, {at:35, limit:3}, {at:41, limit:2}, {at:51, limit:3}, {at:64, limit:4} ],
-  gravel:{ inner:[], outer:[] },
+
+  /* Corners — `at` is the space the corner line sits BEFORE, `limit` the speed you
+     must be at or under crossing it. `chicane:n` groups consecutive corner lines
+     into a chicane: same speed limit, blue kerbs, and ONE Road Condition token for
+     the whole thing — a corner token modifies every line in it, a sector token
+     modifies the sector AFTER it. Each line is still checked separately. */
+  corners:[ {at:5, limit:2, chicane:1}, {at:6, limit:2, chicane:1, mdx:-63, mdy:97}, {at:14, limit:5}, {at:27, limit:4}, {at:38, limit:3, chicane:2, mdx:90, mdy:-108}, {at:41, limit:3, chicane:2, mdx:-69, mdy:-103}, {at:51, limit:5}, {at:65, limit:6} ],
+
+  /* Gravel — space indices whose inner (Race Line) Spot and/or outer Spot is gravel.
+     A space in both lists has gravel right across it. Rule: at the end of your turn
+     (step 9), if your car is on a gravel Spot you must pay 1 Heat if you have any in
+     the Engine; if the Engine is empty, ignore it. */
+  gravel:{ inner:[27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51], outer:[27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51] },
+
+  /* Tunnels — inclusive runs of Spaces (from > to means the run wraps past space 0).
+     Rule: while a car is on a tunnel Space its player cannot discard from hand, and
+     this beats any Event / Upgrade / Road Condition that would otherwise let them.
+     Cooling down (card goes to the Engine) and Scrap (card comes off the top of the
+     draw deck) are not discards, so both are still allowed inside a tunnel. */
   tunnels:[  ],
+
   legendsLine:7,
-  spacePts:[[544,58],[589,58],[634,58],[679,58],[724,59],[769,60],[814,62],[859,64],[904,66],[949,70],[994,75],[1039,83],[1082,96],[1111,129],[1125,172],[1132,216],[1137,261],[1140,306],[1142,351],[1142,396],[1142,441],[1141,487],[1138,532],[1134,576],[1126,621],[1114,664],[1089,701],[1049,722],[1005,733],[961,739],[915,742],[870,742],[825,740],[781,733],[738,720],[699,697],[675,659],[648,623],[610,600],[565,596],[523,610],[491,642],[469,681],[437,712],[396,730],[352,739],[307,742],[261,741],[217,738],[172,729],[130,713],[96,685],[79,643],[70,599],[64,554],[61,509],[59,464],[58,419],[58,374],[59,329],[61,284],[65,239],[71,194],[81,150],[101,110],[139,88],[183,79],[228,72],[273,68],[318,65],[363,62],[408,61],[453,59],[498,59]]
+  spacePts:[[557,72],[591,72],[627,72],[660,75],[696,84],[727,66],[765,98],[800,83],[834,79],[871,82],[907,85],[943,90],[977,102],[1006,123],[1024,154],[1033,190],[1038,226],[1046,259],[1049,302],[1052,344],[1052,380],[1049,425],[1046,461],[1040,504],[1034,552],[1028,573],[1013,603],[983,624],[947,639],[905,648],[868,651],[832,645],[796,645],[757,642],[721,636],[681,612],[666,594],[639,564],[615,540],[564,528],[534,537],[504,561],[485,588],[458,618],[428,630],[392,639],[362,642],[335,645],[298,645],[268,636],[238,618],[217,597],[202,576],[193,543],[187,504],[181,464],[175,416],[175,374],[175,335],[175,298],[181,259],[187,223],[190,187],[199,157],[220,124],[250,96],[283,90],[317,84],[353,81],[383,78],[412,76],[448,75],[484,74],[521,73]]
 };
 
 const TRACK_AURORA = {
